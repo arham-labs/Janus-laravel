@@ -1,0 +1,24 @@
+{
+    "name": "arhamlabs/authenticator",
+    "autoload": {
+        "psr-4": {
+            "Arhamlabs\\Authentication\\": "src/"
+        },
+        "psr-0": {
+            "interface": "interface/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Arhamlabs\\Authentication\\AuthenticationServiceProvider"
+            ]
+        }
+    },
+    "require": {
+        "laravel/sanctum": "2.*",
+        "arhamlabs/error-handler": "1.*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
