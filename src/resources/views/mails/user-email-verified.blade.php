@@ -333,47 +333,43 @@
 
 <body class="antialiased">
     <div class="container">
+        <div class="new_form">
+            <img height="100px" width="100px" src="{{ asset('assets/logo/logo.png') }}">
 
-        @if (session('statusSuccess'))
-            <div class="new_form">
-                <img src="{{ asset('assets/logo/logo.png') }}">
+            {{-- <p class="pass">Status</p> --}}
+            <form>
+                <div class="row">
 
-                {{-- <p class="pass">Status</p> --}}
-                <form>
-                    <div class="row">
-
-                        <div class="col-md-12">
-                            <div class=""
-                                style="color: green;
+                    <div class="col-md-12">
+                        <div class=""
+                            style="color: green;
                         font-size: 20px;
                         display: flex;
                         justify-content: center;
                         padding: 1px;"
-                                role="alert">
-                                <div
-                                    style="width: 28px;
+                            role="alert">
+                            <div
+                                style="width: 28px;
                             height: 28px;
                             border-radius: 50%;
                             background: green;
                             display: flex;
                             padding: 6px;
                             margin: 0 4px;">
-                                    <span class="glyphicon glyphicon-ok" aria-hidden="true"
-                                        style="
+                                <span class="glyphicon glyphicon-ok" aria-hidden="true"
+                                    style="
                                     color: white;
                                     font-size: 15px;
                                     font-weight: 100;
                                 "></span>
-                                </div>
-                                {{ session('statusSuccess') }}
                             </div>
+                            Email Verified Successfully
                         </div>
                     </div>
-                </form>
-            </div>
-        @else
-            The page your looking for is not available
-        @endif
+                </div>
+            </form>
+        </div>
+
     </div>
 
 </body>
