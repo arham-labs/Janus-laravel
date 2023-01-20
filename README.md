@@ -38,7 +38,7 @@ php artisan migrate
 ```
 
 
-**Token Ability Middleware:**
+**Sanctum Token Ability Middleware Setup:**
 
 Sanctum also includes two middleware that may be used to verify that an incoming request is authenticated with a token that has been granted a given ability. To get started, add the following middleware to the $routeMiddleware property of your application's app/Http/Kernel.php file:
 
