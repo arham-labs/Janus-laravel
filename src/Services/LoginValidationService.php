@@ -98,21 +98,4 @@ class LoginValidationService
             throw new Exception($validator->errors()->first(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
-
-    //check user is block
-    public function isUserBlocked()
-    {
-        // try {
-        Log::channel('auth')->info('User Logout');
-        $user = Autj::user();
-        $this->tokenService->deleteSanctumToken($user);
-        return [
-            'status' => 'success',
-        ];
-        // } catch (Exception $e) {
-        //     $errorMessage = $e->getMessage();
-        //     $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
-        //     throw new Exception($errorResponseMessage, $e->getCode());
-        // }
-    }
 }
