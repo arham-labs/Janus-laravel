@@ -5,15 +5,12 @@ namespace Arhamlabs\Authentication\Http\Controllers;
 use Arhamlabs\ApiResponse\ApiResponse;
 use Arhamlabs\Authentication\Interfaces\AuthLoginALInterface;
 use Arhamlabs\Authentication\Interfaces\AuthRegistrationALInterface;
-use Arhamlabs\Authentication\Jobs\SendMailVerificationJob;
 use Arhamlabs\Authentication\Models\AuthUser;
 use Arhamlabs\Authentication\Services\RegistrationValidationService;
 use Arhamlabs\Authentication\Services\TokenService;
 use Arhamlabs\Authentication\Services\UserService;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 
 class AuthRegistrationALController extends Controller

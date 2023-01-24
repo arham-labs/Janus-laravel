@@ -2,17 +2,12 @@
 
 namespace Arhamlabs\Authentication\Http\Controllers;
 
-// use App\Http\Controllers\Controller;
-// use App\Http\Requests\AuthRegistrationRequest;
-use App\Http\Requests\StorePostRequest;
-use App\Models\User;
 use Arhamlabs\ApiResponse\ApiResponse;
 use Arhamlabs\Authentication\Interfaces\AuthLoginALInterface;
 use Arhamlabs\Authentication\Interfaces\AuthRegistrationALInterface;
 use Arhamlabs\Authentication\Models\AuthSetting;
 use Arhamlabs\Authentication\Models\AuthUser;
-use Arhamlabs\Authentication\Repositories\AuthLoginALRepository;
-use Arhamlabs\Authentication\Services\loginValidationService;
+use Arhamlabs\Authentication\Services\LoginValidationService;
 use Arhamlabs\Authentication\Services\TokenService;
 use Arhamlabs\Authentication\Services\UserService;
 use Exception;
@@ -24,7 +19,6 @@ use Illuminate\Support\Facades\Log;
 class AuthLoginALController extends Controller
 {
     private $authLoginALRepository;
-    private $authRegistrationALRepository;
     private $apiResponse;
     public $userService;
     public $tokenService;
@@ -38,7 +32,6 @@ class AuthLoginALController extends Controller
         LoginValidationService $loginValidationService,
     ) {
         $this->authLoginALRepository = $authLoginALRepository;
-        $this->authRegistrationALRepository = $authRegistrationALInterface;
         $this->apiResponse = $apiResponse;
         $this->userService = $userService;
         $this->tokenService = $tokenService;

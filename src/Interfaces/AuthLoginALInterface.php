@@ -5,9 +5,6 @@ namespace Arhamlabs\Authentication\Interfaces;
 interface AuthLoginALInterface
 {
 
-    //User login using email,password
-    // public function login($request);
-
     //User register using mobile,password
     public function sentMobileOtp($request);
 
@@ -36,7 +33,7 @@ interface AuthLoginALInterface
     //Create|update auth user setting
     public function  updateAuthUserSetting($user, $request);
 
-    
+
     // User web email verification
     public function webEmailVerification($request);
 }

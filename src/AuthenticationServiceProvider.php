@@ -17,7 +17,6 @@ class AuthenticationServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // $this->app->make('Arhamlabs\Authentication\Http\Controllers\AuthRegistrationALController');
         $this->app->bind(AuthRegistrationALInterface::class, AuthRegistrationALRepository::class);
         $this->app->bind(AuthLoginALInterface::class, AuthLoginALRepository::class);
     }
@@ -39,7 +38,6 @@ class AuthenticationServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/config/al_auth_config.php' => config_path('al_auth_config.php'),
             ], 'config');
-
 
             $this->publishes([
                 __DIR__ . '/resources/lang/en/messages.php' => resource_path('lang/en/messages.php'),
