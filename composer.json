@@ -1,5 +1,11 @@
 {
     "name": "arhamlabs/authenticator",
+    "authors": [
+        {
+            "name": "ArhamLabs",
+            "email": "siddheshkini@arhamlabs.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Arhamlabs\\Authentication\\": "src/"
