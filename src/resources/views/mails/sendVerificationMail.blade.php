@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <img style="height: auto" src="{{ $details['tokenUrl'] }}" alt="arhamlabs-logo" width="60">
+    <img style="height: auto" src="{{ $details['logo'] }}" alt="arhamlabs-logo" width="60">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">

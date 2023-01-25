@@ -261,18 +261,18 @@ class AuthLoginALController extends Controller
         }
     }
 
-
+    
     //web email verification
     public function webEmailVerification($token)
     {
         try {
             $emailVerified = $this->authLoginALRepository->webEmailVerification($token);
             if ($emailVerified == 1) {
-                return redirect()->route('verified')->with('statusSuccess', 'Your email has been verified!');
+                return view('mails.user-email-verified')->with(['message' => 'Your email has been verified!']);
             } else
-                return redirect()->route('verified');
+                return view('mails.user-email-verified');
         } catch (\Exception $error) {
-            return redirect()->route('verified');
+            return view('mails.user-email-verified');
         }
     }
 }

@@ -36,7 +36,7 @@ class UserService
             'mobile' => $data->mobile ? $data->mobile : null,
             'subject' => 'OTP VERIFICATION',
             'view' => 'mails.sendOtpMail',
-            'logo' => public_path('assets/logo/logo.png'),
+            'logo' => url('assets/logo/logo.png'),
         ];
         dispatch(new SendOtpJob($details));
     }
@@ -55,7 +55,7 @@ class UserService
             'name' => $data->first_name . ' ' . $data->last_name,
             'subject' => 'Email Verification',
             'view' => 'mails.sendVerificationMail',
-            'logo' => public_path('assets/logo/logo.png'),
+            'logo' => url('assets/logo/logo.png'),
             'tokenUrl' => url("email/verification/$token")
         ];
         dispatch(new SendMailVerificationJob($data));
