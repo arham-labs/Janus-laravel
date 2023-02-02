@@ -11,6 +11,6 @@ class TempOtp extends Model
 
     public $table = 'temp_otp';
 
-    protected $fillable = ['uuid','email','mobile', 'otp', 'expire_at', 'service'];
+    protected $fillable = ['uuid','email','mobile','country_code' ,'otp', 'expire_at', 'service'];
 
 }

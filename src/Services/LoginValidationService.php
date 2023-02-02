@@ -78,9 +78,9 @@ class LoginValidationService
     //validate mobile
     public function checkMobileValidation($request)
     {
-        $validator = Validator::make(['mobile' => $request->mobile, 'country_code' => $request->country_code], [
+        $validator = Validator::make(['mobile' => $request->mobile, 'countryCode' => $request->countryCode], [
             'mobile' => 'required|regex:/^[0-9]{6,14}$/',
-            'country_code' => 'required'
+            'countryCode' => 'required'
         ]);
 
         if ($validator->fails()) {

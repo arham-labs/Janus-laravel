@@ -189,7 +189,7 @@ To handle default exception on api routes such as AuthenticationException/Access
 | Parameter   | Type     | Description                |
 | :--------   | :------- | :------------------------- |
 | `mobile`    | `number` | *Required*|
-| `country_code`    | `number` | *Required*|
+| `countryCode`    | `number` | *Required*|
 
 
 
