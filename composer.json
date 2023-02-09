@@ -22,8 +22,8 @@
         }
     },
     "require": {
-        "laravel/sanctum": "^2.*",
-        "arhamlabs/error-handler": "^1.*"
+        "laravel/sanctum": "*",
+        "arhamlabs/error-handler": "*"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
