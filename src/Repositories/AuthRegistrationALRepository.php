@@ -41,9 +41,15 @@ class AuthRegistrationALRepository implements AuthRegistrationALInterface
     public function register($request)
     {
         // try {
+        $password = $request->password;
+        if (isset($request->password)) {
+            if (Hash::needsRehash($password)) {
+                $password = Hash::make($password);
+            }
+        }
         $tempUserCreated = TempRegistration::create([
             'uuid' => Str::uuid(),
-            'password' => Hash::make($request->password),
+            'password' => $password ? $password : null,
             'email' => $request->email,
             'username' => $request->username,
             'first_name' => $request->firstName,

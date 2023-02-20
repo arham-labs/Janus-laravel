@@ -13,6 +13,10 @@ Route::middleware('guest')->group(function () {
     //User login using email,password
     Route::post('api/package/auth/login', [AuthLoginALController::class, 'login']);
 
+
+    //User login using email,password
+    Route::post('package/auth/sso-login', [AuthLoginALController::class, 'loginWithSso']);
+
     //User login using mobile,otp
     Route::post('api/package/auth/sent-mobile-otp', [AuthLoginALController::class, 'sentMobileOtp']);
 

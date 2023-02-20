@@ -12,23 +12,17 @@ return [
     //length for otp 
     'otp_length' => 6,
 
-
     //otp expire in minutes
     'otp_expire' => 5,
 
     //allow multi login with same credentials
-    'user_multi_login' => false,
-
-    //allow temp registration
-    // 'temp_registration' => true,
+    'user_multi_login' => true,
 
     //token expiry(platform dependency) in hours
     'token_expiry' => 48,
 
-
     //default user type
     'user_Type' => 'app_user',
-
 
     //default user type
     'user_status' => [
@@ -38,5 +32,8 @@ return [
     ],
 
     //email verification mail expiry(platform dependency) in hours
-    'email_verification_mail_expiry' => 48
+    'email_verification_mail_expiry' => 48,
+
+    //email verification mail expiry(platform dependency) in hours
+    'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH')
 ];

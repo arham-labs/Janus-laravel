@@ -3,47 +3,25 @@
 namespace Arhamlabs\Authentication\Services;
 
 use Exception;
+use Google_Client;
 
 
 class TokenService
 {
-    public function  checkTokenValidation($token, $ssoType, $email)
+    public function  checkTokenValidation($idToken, $aud, $ssoType, $email)
     {
-        try {
-            return true;
+        $valid = true;
+        if ($ssoType == 'google') {
             $valid = false;
-            if ($ssoType == 'google') {
-                $curl = curl_init();
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://oauth2.googleapis.com/tokeninfo?id_token=$token",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => array(
-                        'Accept: application/json',
-                    ),
-                ));
-                $response = curl_exec($curl);
-                curl_close($curl);
-                $result = json_decode($response);
-                if (isset($result->error)) {
-                    throw new Exception($result->error, 401);
-                } else if (isset($result->email_verified)) {
-                    if (isset($result->email) && $result->email = $email) {
-                        $valid = true;
-                    }
+            $client = new Google_Client(['client_id' => $aud]);
+            $payload = $client->verifyIdToken($idToken);
+            if ($payload) {
+                if (isset($payload['email']) && $payload['email'] = $email) {
+                    $valid = true;
                 }
             }
-            return $valid;
-        } catch (Exception $e) {
-            $errorMessage = $e->getMessage();
-            $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
-            throw new Exception($errorResponseMessage, $e->getCode());
         }
+        return $valid;
     }
     public function generateSanctumToken($user, $ability)
     {

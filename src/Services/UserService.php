@@ -43,7 +43,8 @@ class UserService
     public function SendMailVerificationService($data)
     {
         $date = Carbon::now();
-        $en = encrypt($data->uuid . '_ALAUTH_' . $data->email . '_ALAUTH_' . $date);
+        $email_encryption_key = config('al_auth_config.email_encryption_key');
+        $en = encrypt($data->uuid .  $email_encryption_key . $data->email .  $email_encryption_key . $date);
         $token = Crypt::encryptString($en);
 
         $data = [

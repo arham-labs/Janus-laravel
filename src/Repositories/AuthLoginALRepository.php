@@ -14,6 +14,7 @@ use Arhamlabs\Authentication\Services\UserService;
 use Arhamlabs\Authentication\Services\TokenService;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -208,13 +209,14 @@ class AuthLoginALRepository implements AuthLoginALInterface
             ->first();
     }
 
-
-
     public function logout()
     {
         // try {
         Log::channel('auth')->info('User Logout');
         $user = Auth::user();
+        $request = new Request;
+        $request['last_logout_at'] = Carbon::now();
+        $this->updateAuthUserSetting($user, $request);
         $this->tokenService->deleteSanctumToken($user);
         return [
             'status' => 'success',
@@ -252,12 +254,12 @@ class AuthLoginALRepository implements AuthLoginALInterface
         } else {
             $authSetting = AuthSetting::where('uuid', $userSettingDetails->uuid)->update(
                 [
-                    'user_type' => $request->user_type ? $request->user_type : $userSettingDetails->user_type,
-                    'user_status' => $request->user_status ? $request->user_status : $userSettingDetails->user_status,
-                    'registration_at' => $request->registration_at ? $request->registration_at : $userSettingDetails->registration_at,
-                    'email_verified_at' => $request->email_verified_at ? $request->email_verified_at : $userSettingDetails->email_verified_at,
-                    'last_login_at' => $request->last_login_at ? $request->last_login_at : $userSettingDetails->last_login_at,
-                    'last_logout_at' => $request->last_logout_at ? $request->last_logout_at : $userSettingDetails->last_logout_at
+                    'user_type' => !empty($request->user_type) ? $request->user_type : $userSettingDetails->user_type,
+                    'user_status' => !empty($request->user_status) ? $request->user_status : $userSettingDetails->user_status,
+                    'registration_at' => !empty($request->registration_at) ? $request->registration_at : $userSettingDetails->registration_at,
+                    'email_verified_at' => !empty($request->email_verified_at) ? $request->email_verified_at : $userSettingDetails->email_verified_at,
+                    'last_login_at' => !empty($request->last_login_at) ? $request->last_login_at : $userSettingDetails->last_login_at,
+                    'last_logout_at' => !empty($request->last_logout_at) ? $request->last_logout_at : $userSettingDetails->last_logout_at
                 ]
             );
             return [
@@ -272,7 +274,8 @@ class AuthLoginALRepository implements AuthLoginALInterface
         $isEmailVerificationComplete = false;
         $decrypt = Crypt::decryptString($token);
         $decrypt = decrypt($decrypt);
-        $explode = explode('_ALAUTH_', $decrypt);
+        $email_encryption_key = config('al_auth_config.email_encryption_key');
+        $explode = explode($email_encryption_key, $decrypt);
         if (!empty($explode[2])) {
             $currentDate = Carbon::now();
             $requestDate = $explode[2];
@@ -308,5 +311,4 @@ class AuthLoginALRepository implements AuthLoginALInterface
         }
         return $isEmailVerificationComplete;
     }
-
 }

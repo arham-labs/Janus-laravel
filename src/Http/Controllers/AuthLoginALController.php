@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class AuthLoginALController extends Controller
 {
@@ -71,6 +72,8 @@ class AuthLoginALController extends Controller
                     }
                     $ability = 'userType:' . $userType;
                     $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
+                    $request['last_login_at'] = Carbon::now();
+                    $this->authLoginALRepository->updateAuthUserSetting($user, $request);
                     $customUserMessageTitle = __('messages.login_success_title');
                     $customUserMessageText = __('messages.login_success_text');
                     $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
@@ -261,7 +264,7 @@ class AuthLoginALController extends Controller
         }
     }
 
-    
+
     //web email verification
     public function webEmailVerification($token)
     {
@@ -273,6 +276,61 @@ class AuthLoginALController extends Controller
                 return view('mails.user-email-verified');
         } catch (\Exception $error) {
             return view('mails.user-email-verified');
+        }
+    }
+    //SSO login using google/apple
+    public function loginWithSso(Request $request)
+    {
+        try {
+            $email = $request->input('email');
+            $ssoType = $request->input('ssoType');
+            $idToken = $request->input('idToken');
+            $aud = $request->input('aud');
+            //validate email id
+            // $this->userService->checkEmailOrUsername($email);
+            //validate user email with id token
+            $tokenCheck = $this->tokenService->checkTokenValidation($idToken, $aud, $ssoType, $email);
+
+            $data = array();
+            if ($tokenCheck === true) {
+                $user = $this->authLoginALRepository->getUserByEmailOrUsername($email);
+                if (empty($user)) {
+                    $request['status'] = 'verified';
+                    $request['email_verified_at'] = Carbon::now();
+                    //user registration in temporary table 
+                    $tempUser = $this->authRegistrationALRepository->register($request);
+                    $user = new AuthUser;
+                    $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
+                    if (!$userDetails['status'] == 'success') {
+                        $customUserMessageTitle = __('error_messages.system_error');
+                        $customUserMessageText = __('error_messages.system_error');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                        throw new Exception($customUserMessageTitle, 500);
+                    }
+                    $user = $userDetails['data'];
+                }
+                $ability = 'userType:user';
+                $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
+                $customUserMessageTitle = __('messages.login_success_title');
+                $customUserMessageText = __('messages.login_success_text');
+                $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                $data = [
+                    'accessToken' => $apiToken,
+                    'user' => $user
+                ];
+            } else {
+                $customUserMessageTitle = __('error_messages.invalid_token_title');
+                $customUserMessageText = __('error_messages.invalid_token_text');
+                $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                throw new Exception($customUserMessageTitle, 401);
+            }
+            return $this->apiResponse->getResponse(200, $data);
+        } catch (Exception $e) {
+            $errorMessage = $e->getMessage();
+            $errorLine = $e->getLine();
+            $errorFile = $e->getFile();
+            $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
+            return $this->apiResponse->getResponse($e->getCode(), null,  $errorResponseMessage, $errorFile, $errorLine);
         }
     }
 }
