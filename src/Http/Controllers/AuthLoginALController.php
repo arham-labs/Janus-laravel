@@ -67,7 +67,7 @@ class AuthLoginALController extends Controller
                         $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
                         throw new Exception(__('error_messages.system_user_account_block'), 401);
                     }
-                    $userType = config('auth_registration.user_Type') ? config('auth_registration.user_Type') : 'app_user';
+                    $userType = config('al_auth_config.user_Type') ? config('al_auth_config.user_Type') : 'app_user';
                     //get user type
                     if (!empty($user->settings) && !empty($user->settings->userType)) {
                         $userType = $user->settings->userType;
@@ -311,7 +311,7 @@ class AuthLoginALController extends Controller
                     }
                     $user = $userDetails['data'];
                 }
-                $ability = 'userType:user';
+                $ability = 'userType:app_user';
                 $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
                 $customUserMessageTitle = __('messages.login_success_title');
                 $customUserMessageText = __('messages.login_success_text');

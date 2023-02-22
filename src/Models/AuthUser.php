@@ -23,6 +23,7 @@ class AuthUser extends Authenticatable
     protected $fillable = [
         'uuid',
         'name',
+        'sso_type',
         'first_name',
         'last_name',
         'username',

@@ -50,6 +50,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
             'uuid' => Str::uuid(),
             'password' => $password ? $password : null,
             'email' => $request->email,
+            'sso_type' => $request->ssoType,
             'username' => $request->username,
             'name' => $request->firstName ? $request->firstName . ' ' . $request->lastName :  null,
             'first_name' => $request->firstName,

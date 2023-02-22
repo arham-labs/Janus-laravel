@@ -19,6 +19,7 @@ class CreateTempRegistration extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('email')->nullable();
+            $table->string('sso_type')->nullable();
             $table->string('username')->nullable();
             $table->string('country_code')->nullable();
             $table->string('mobile')->nullable();

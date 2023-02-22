@@ -14,6 +14,7 @@ class TempRegistration extends Model
         'first_name',
         'last_name',
         'username',
+        'sso_type',
         'email',
         'mobile',
         'password',
