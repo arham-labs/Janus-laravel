@@ -20,6 +20,7 @@ class AddAuthColumnsToUsers extends Migration
             $table->string('country_code')->nullable();
             $table->string('mobile')->nullable();
             $table->string('username')->nullable();
+            $table->string('sso_type')->nullable();
         });
     }
 
