@@ -20,19 +20,21 @@ use Carbon\Carbon;
 class AuthLoginALController extends Controller
 {
     private $authLoginALRepository;
+    private $authRegistrationALRepository;
     private $apiResponse;
     public $userService;
     public $tokenService;
     public $loginValidationService;
     public function __construct(
         AuthLoginALInterface $authLoginALRepository,
-        AuthRegistrationALInterface $authRegistrationALInterface,
+        AuthRegistrationALInterface $authRegistrationALRepository,
         ApiResponse $apiResponse,
         UserService $userService,
         TokenService $tokenService,
         LoginValidationService $loginValidationService,
     ) {
         $this->authLoginALRepository = $authLoginALRepository;
+        $this->authRegistrationALRepository = $authRegistrationALRepository;
         $this->apiResponse = $apiResponse;
         $this->userService = $userService;
         $this->tokenService = $tokenService;
