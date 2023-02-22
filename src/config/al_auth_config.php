@@ -35,5 +35,11 @@ return [
     'email_verification_mail_expiry' => 48,
 
     //email verification mail expiry(platform dependency) in hours
-    'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH')
+    'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH'),
+
+    'linkedin' => [
+        'LINKEDIN_REDIRECT_URI' => env('LINKEDIN_REDIRECT_URI'),
+        'LINKEDIN_CLIENT_ID' => env('LINKEDIN_CLIENT_ID'),
+        'LINKEDIN_CLIENT_SECRET' => env('LINKEDIN_CLIENT_SECRET')
+    ]
 ];
