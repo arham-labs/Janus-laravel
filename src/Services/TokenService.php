@@ -116,9 +116,8 @@ class TokenService
                 $valid["status"] = true;
                 $valid["message"] = "Token validate successfully";
             }
-
-            return $valid;
         }
+        return $valid;
     }
     public function generateSanctumToken($user, $ability)
     {
