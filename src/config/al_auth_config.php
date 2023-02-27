@@ -41,5 +41,10 @@ return [
         'LINKEDIN_REDIRECT_URI' => env('LINKEDIN_REDIRECT_URI'),
         'LINKEDIN_CLIENT_ID' => env('LINKEDIN_CLIENT_ID'),
         'LINKEDIN_CLIENT_SECRET' => env('LINKEDIN_CLIENT_SECRET')
+    ],
+
+    'apple' => [
+        'TOKEN_ISS' => env('TOKEN_ISS', "https://appleid.apple.com"),
+        'TOKEN_AUD' => env('TOKEN_AUD', "com.example.co.uk.app"),
     ]
 ];

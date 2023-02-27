@@ -294,7 +294,7 @@ class AuthLoginALController extends Controller
             $tokenCheck = $this->tokenService->checkTokenValidation($idToken, $aud, $ssoType, $email);
 
             $data = array();
-            if ($tokenCheck === true) {
+            if ($tokenCheck['status'] === true) {
                 $user = $this->authLoginALRepository->getUserByEmailOrUsername($email);
                 if (empty($user)) {
                     $request['status'] = 'verified';
@@ -323,8 +323,10 @@ class AuthLoginALController extends Controller
             } else {
                 $customUserMessageTitle = __('error_messages.invalid_token_title');
                 $customUserMessageText = __('error_messages.invalid_token_text');
+                $errorMessage = !empty($tokenCheck['errorMessage']) ? $tokenCheck['errorMessage'] : __('error_messages.invalid_token_text');
                 $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
-                throw new Exception($customUserMessageTitle, 401);
+                return $this->apiResponse->getResponse(401, null, $errorMessage);
+                // throw new Exception($customUserMessageTitle, 401);
             }
             return $this->apiResponse->getResponse(200, $data);
         } catch (Exception $e) {
