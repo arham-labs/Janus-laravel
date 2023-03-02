@@ -35,10 +35,5 @@ class SendOtpJob implements ShouldQueue
     public function handle()
     {
         Log::info($this->details['type']);
-        if (!empty($this->details['type']) && $this->details['type'] == 'sms') {
-        } else {
-            $emailTemplate = new SendOtpMail($this->details);
-            Mail::to($this->details['email'])->send($emailTemplate);
-        }
     }
 }

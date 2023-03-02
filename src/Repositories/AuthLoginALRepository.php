@@ -95,6 +95,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
                 'mobile' => $request->mobile,
                 'country_code' => $request->country_code,
                 'service' => 'sms',
+                'type' => 'sms',
                 'otp' => $tempOtp,
                 'expire_at' => Carbon::now()->addMinute($expireTime)
             ]

@@ -61,7 +61,7 @@ class AuthLoginALController extends Controller
             if ($user != null && $user->exists() === true) {
                 if (Hash::check($password, $user->password) === true) {
                     //check user if blocked
-                    if (!empty($user->settings) && $user->settings->user_status === config("al_auth_config.user_status")['blocked']) {
+                    if (!empty($user->settings) && $user->settings->user_status === 2) {
                         $customUserMessageTitle = __('error_messages.account_blocked_title');
                         $customUserMessageText = __('error_messages.account_blocked_text');
                         $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
@@ -194,7 +194,7 @@ class AuthLoginALController extends Controller
                 $model_name = $user->getMorphClass();
                 $userSettingDetails = AuthSetting::where('model_name', $model_name)->where('model_id', $user->id)->latest()->first();
                 //check user if blocked
-                if (!empty($userSettingDetails) && $userSettingDetails->user_status === config("al_auth_config.user_status")['blocked']) {
+                if (!empty($userSettingDetails) && $userSettingDetails->user_status === 2) {
                     $customUserMessageTitle = __('error_messages.account_blocked_title');
                     $customUserMessageText = __('error_messages.account_blocked_text');
                     $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);

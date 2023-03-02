@@ -57,6 +57,7 @@ class AuthRegistrationALRepository implements AuthRegistrationALInterface
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'mobile' => $request->mobile,
+            'country_code' => $request->country_code,
             'status' => $request->status ? $request->status : 'pending'
         ]);
 

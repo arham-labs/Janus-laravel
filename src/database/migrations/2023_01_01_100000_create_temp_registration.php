@@ -25,7 +25,7 @@ class CreateTempRegistration extends Migration
             $table->string('mobile')->nullable();
             $table->string('password')->nullable();
             $table->integer('otp')->nullable();
-            $table->string('user_type')->default('app_user')->comment('app_user for device users, web_user for website users,admin for web admin users');
+            $table->string('user_type')->nullable()->default('app_user')->comment('app_user for device users, web_user for website users,admin for web admin users');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('status')->default('pending');
             $table->rememberToken();
