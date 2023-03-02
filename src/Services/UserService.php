@@ -2,9 +2,9 @@
 
 namespace Arhamlabs\Authentication\Services;
 
+use Arhamlabs\Authentication\Jobs\SendMailOtpJob;
 use Arhamlabs\Authentication\Jobs\SendMailVerificationJob;
 use Arhamlabs\Authentication\Jobs\SendOtpJob;
-use Arhamlabs\Authentication\Mail\SendOtpMail;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Response;
@@ -42,7 +42,7 @@ class UserService
         if ($data->type == 'sms')
             dispatch(new SendOtpJob($details));
         else
-            dispatch(new SendOtpMail($details));
+            dispatch(new SendMailOtpJob($details));
     }
     public function SendMailVerificationService($data)
     {
