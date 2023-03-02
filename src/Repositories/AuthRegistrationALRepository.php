@@ -51,10 +51,11 @@ class AuthRegistrationALRepository implements AuthRegistrationALInterface
             'uuid' => Str::uuid(),
             'password' => $password ? $password : null,
             'email' => $request->email,
-            'sso_type' => $request->ssoType,
+            'sso_type' => $request->sso_type,
+            'user_type' => $request->user_type,
             'username' => $request->username,
-            'first_name' => $request->firstName,
-            'last_name' => $request->lastName,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'mobile' => $request->mobile,
             'status' => $request->status ? $request->status : 'pending'
         ]);

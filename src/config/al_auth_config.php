@@ -18,18 +18,8 @@ return [
     //allow multi login with same credentials
     'user_multi_login' => true,
 
-    //token expiry(platform dependency) in hours
-    'token_expiry' => 48,
-
     //default user type
     'user_Type' => 'app_user',
-
-    //default user type
-    'user_status' => [
-        'active' => 1,
-        'blocked' => 2,
-        'deleted' => 3,
-    ],
 
     //email verification mail expiry(platform dependency) in hours
     'email_verification_mail_expiry' => 48,

@@ -22,8 +22,8 @@ class RegistrationValidationService
     public function validation($request)
     {
         $validator = Validator::make($request->all(), [
-            'firstName' => 'string',
-            'lastName' => 'string',
+            'first_name' => 'string',
+            'last_name' => 'string',
             'username' => 'string',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|max:15',

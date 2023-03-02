@@ -67,12 +67,12 @@ class AuthLoginALController extends Controller
                         $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
                         throw new Exception(__('error_messages.system_user_account_block'), 401);
                     }
-                    $userType = config('al_auth_config.user_Type') ? config('al_auth_config.user_Type') : 'app_user';
+                    $user_type = config('al_auth_config.user_Type') ? config('al_auth_config.user_Type') : 'app_user';
                     //get user type
-                    if (!empty($user->settings) && !empty($user->settings->userType)) {
-                        $userType = $user->settings->userType;
+                    if (!empty($user->settings) && !empty($user->settings->user_type)) {
+                        $user_type = $user->settings->user_type;
                     }
-                    $ability = 'userType:' . $userType;
+                    $ability = 'userType:' . $user_type;
                     $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
                     $request['last_login_at'] = Carbon::now();
                     $this->authLoginALRepository->updateAuthUserSetting($user, $request);
@@ -200,7 +200,7 @@ class AuthLoginALController extends Controller
                     $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
                     throw new Exception(__('error_messages.system_user_account_block'), 401);
                 }
-                $ability =  $userSettingDetails->user_type ? 'userType:' . $userSettingDetails->user_type : 'userType:app_user';
+                $ability =  $userSettingDetails->user_type ? 'userType:' . $userSettingDetails->user_type : 'userType:' .  config('al_auth_config.user_Type');
                 $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
                 $customUserMessageTitle = __('messages.otp_verify_success_title');
                 $customUserMessageText = __('messages.otp_verify_success_text');
@@ -285,13 +285,13 @@ class AuthLoginALController extends Controller
     {
         try {
             $email = $request->input('email');
-            $ssoType = $request->input('ssoType');
+            $sso_type = $request->input('sso_type');
             $idToken = $request->input('idToken');
             $aud = $request->input('aud');
             //validate email id
             // $this->userService->checkEmailOrUsername($email);
             //validate user email with id token
-            $tokenCheck = $this->tokenService->checkTokenValidation($idToken, $aud, $ssoType, $email);
+            $tokenCheck = $this->tokenService->checkTokenValidation($idToken, $aud, $sso_type, $email);
 
             $data = array();
             if ($tokenCheck['status'] === true) {
@@ -311,7 +311,7 @@ class AuthLoginALController extends Controller
                     }
                     $user = $userDetails['data'];
                 }
-                $ability = 'userType:app_user';
+                $ability = 'userType:' . config('al_auth_config.user_Type');
                 $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
                 $customUserMessageTitle = __('messages.login_success_title');
                 $customUserMessageText = __('messages.login_success_text');

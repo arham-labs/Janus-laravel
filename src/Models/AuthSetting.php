@@ -13,8 +13,8 @@ class AuthSetting extends Model
     protected $fillable = ['uuid', 'model_name', 'model_id', 'user_type', 'user_status', 'registration_at', 'email_verified_at', 'last_login_at', 'last_logout_at'];
 
 
-    public function userActivities()
-    {
-        return $this->morphMany(AuthUser::class, 'userActivityTable', 'model_name', 'model_id');
-    }
+    // public function userActivities()
+    // {
+    //     return $this->morphMany(AuthUser::class, 'userActivityTable', 'model_name', 'model_id');
+    // }
 }

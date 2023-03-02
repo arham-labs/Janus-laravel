@@ -50,13 +50,14 @@ class AuthLoginALRepository implements AuthLoginALInterface
             'uuid' => Str::uuid(),
             'password' => $password ? $password : null,
             'email' => $request->email,
-            'sso_type' => $request->ssoType,
+            'sso_type' => $request->sso_type,
+            'user_type' => $request->user_type,
             'username' => $request->username,
-            'name' => $request->firstName ? $request->firstName . ' ' . $request->lastName :  null,
-            'first_name' => $request->firstName,
-            'last_name' => $request->lastName,
+            'name' => $request->first_name ? $request->first_name . ' ' . $request->last_name :  null,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'mobile' => $request->mobile,
-            'country_code' => $request->countryCode,
+            'country_code' => $request->country_code,
             'email_verified_at' => $request->email_verified_at ? $request->email_verified_at : null,
         ]);
         if (isset($createRow)) {
@@ -92,7 +93,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
                 'uuid' => Str::uuid(),
                 'email' => null,
                 'mobile' => $request->mobile,
-                'country_code' => $request->countryCode,
+                'country_code' => $request->country_code,
                 'service' => 'sms',
                 'otp' => $tempOtp,
                 'expire_at' => Carbon::now()->addMinute($expireTime)

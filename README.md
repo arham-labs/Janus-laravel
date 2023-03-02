@@ -107,13 +107,14 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 | Parameter   | Type     | Description                |
 | :--------   | :------- | :------------------------- |
-| `firstName` | `string` ||
-| `lastName` | `string` ||
+| `first_name` | `string` ||
+| `last_name` | `string` ||
+| `user_type` | `string` ||
 | `username` | `string` ||
 | `email`    | `string` | *Required*|
 | `password` | `string` |*Required*|
 | `mobile`   | `number` ||  
-| `countryCode` | `number` ||
+| `country_code` | `number` ||
 
 ---
 
@@ -189,7 +190,7 @@ To handle default exception on api routes such as AuthenticationException/Access
 | Parameter   | Type     | Description                |
 | :--------   | :------- | :------------------------- |
 | `mobile`    | `number` | *Required*|
-| `countryCode`    | `number` | *Required*|
+| `country_code`    | `number` | *Required*|
 
 
 
@@ -210,7 +211,7 @@ To handle default exception on api routes such as AuthenticationException/Access
 | :--------   | :------- | :------------------------- |
 | `otp`    | `number` | *Required*|
 | `mobile`    | `number` | *Required*|
-| `countryCode`    | `number` | *Required*|
+| `country_code`    | `number` | *Required*|
 
 
 
