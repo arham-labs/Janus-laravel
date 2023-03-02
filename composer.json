@@ -23,7 +23,7 @@
     },
     "require": {
         "laravel/sanctum": "^2.0",
-        "arhamlabs/error-handler": "^2.0",
+        "arhamlabs/error-handler": "^2.*",
         "google/apiclient": "^2.13"
     },
     "minimum-stability": "dev",
