@@ -30,6 +30,10 @@ return [
     'invalid_otp_title' => 'Invalid otp',
     'invalid_otp_text' => '',
 
+    
+    'expired_otp_title' => 'Otp Expired',
+    'expired_otp_text' => '',
+
     'invalid_mobile_title' => 'Invalid mobile number',
     'invalid_mobile_text' => '',
 
