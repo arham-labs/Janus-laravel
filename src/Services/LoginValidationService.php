@@ -21,13 +21,22 @@ class LoginValidationService
     //validate email/username
     public function validation($request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'string',
-            'last_name' => 'string',
-            'username' => 'string',
-            'email' => 'email|unique:users,email',
-            'password' => 'min:6|max:6',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'first_name' => 'string',
+                'last_name' => 'string',
+                'username' => 'string',
+                'email' => 'email|unique:users,email',
+                'password' => 'min:6|max:6',
+            ],
+            [
+                "email.required" => __("validation_messages.email_required"),
+                "email.unique" => __("validation_messages.email_unique"),
+                "email" => __("validation_messages.email_invalid"),
+                "password" => __("validation_messages.password_invalid"),
+            ]
+        );
         if ($validator->fails()) {
             return $validator->errors();
         }
@@ -39,9 +48,16 @@ class LoginValidationService
     {
         if (!empty($email) && str_contains($email, '@')) {
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $validator = Validator::make(['email' => $email], [
-                    'email' => 'bail|required|email',
-                ]);
+                $validator = Validator::make(
+                    ['email' => $email],
+                    [
+                        'email' => 'bail|required|email',
+                    ],
+                    [
+                        "email.required" => __("validation_messages.email_required"),
+                        "email" => __("validation_messages.email_invalid"),
+                    ]
+                );
 
                 if ($validator->fails()) {
                     Log::info('Validation failed for email ', (array)$validator->errors()->first());
@@ -49,12 +65,20 @@ class LoginValidationService
                 }
             } else {
                 Log::info('Email address is not valid');
-                throw new Exception('Email address is not valid', Response::HTTP_UNPROCESSABLE_ENTITY);
+                throw new Exception(__("validation_messages.email_invalid"), Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         } else {
-            $validator = Validator::make(['username' => $email], [
-                'username' => 'bail|required|regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/',
-            ]);
+            //This regular expression is used to validate a string that contains only alphanumeric characters and at least one letter (uppercase or lowercase).
+            $validator = Validator::make(
+                ['username' => $email],
+                [
+                    'username' => 'bail|required|regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/',
+                ],
+                [
+                    "username.required" => __("validation_messages.username_required"),
+                    "username.regex" => __("validation_messages.username_invalid"),
+                ]
+            );
             if ($validator->fails()) {
                 Log::info('Validation failed for username ', (array)$validator->errors());
                 throw new Exception($validator->errors()->first(), Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -65,9 +89,16 @@ class LoginValidationService
     //validate email/username
     public function checkPassword($password)
     {
-        $validator = Validator::make(['password' => $password], [
-            'password' => 'required|min:6|max:12'
-        ]);
+        $validator = Validator::make(
+            ['password' => $password],
+            [
+                'password' => 'required|min:6|max:12'
+            ],
+            [
+                "password.required" => __("validation_messages.password_required"),
+                "password" => __("validation_messages.password_invalid"),
+            ]
+        );
 
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first(), Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -91,9 +122,16 @@ class LoginValidationService
     //validate email
     public function checkEmailValidation($email)
     {
-        $validator = Validator::make(['email' => $email], [
-            'email' => 'bail|required|email',
-        ]);
+        $validator = Validator::make(
+            ['email' => $email],
+            [
+                'email' => 'bail|required|email',
+            ],
+            [
+                "email.required" => __("validation_messages.email_required"),
+                "email" => __("validation_messages.email_invalid"),
+            ]
+        );
 
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first(), Response::HTTP_UNPROCESSABLE_ENTITY);

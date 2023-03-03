@@ -41,10 +41,15 @@ class AuthenticationServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__ . '/resources/lang/en/messages.php' => resource_path('lang/en/messages.php'),
-            ], 'locale');
+            ], 'locale_messages');
+
             $this->publishes([
                 __DIR__ . '/resources/lang/en/error_messages.php' => resource_path('lang/en/error_messages.php'),
-            ], 'locale');
+            ], 'locale_error_messages');
+
+            $this->publishes([
+                __DIR__ . '/resources/lang/en/validation_messages.php' => resource_path('lang/en/validation_messages.php'),
+            ], 'locale_validation_messages');
 
             $this->publishes([
                 __DIR__ . '/resources/views/mails' => resource_path('views/mails'),

@@ -21,13 +21,22 @@ class RegistrationValidationService
     //validate email/username
     public function validation($request)
     {
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'string',
-            'last_name' => 'string',
-            'username' => 'string',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|max:15',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'first_name' => 'string',
+                'last_name' => 'string',
+                'username' => 'string',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6|max:15',
+            ],
+            [
+                "email.required" => __("validation_messages.email_required"),
+                "email.unique" => __("validation_messages.email_unique"),
+                "email" => __("validation_messages.email_invalid"),
+                "password" => __("validation_messages.password_invalid"),
+            ]
+        );
         if ($validator->fails()) {
             return $validator->errors();
         }
