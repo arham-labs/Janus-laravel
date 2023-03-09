@@ -2,8 +2,6 @@
 
 namespace Arhamlabs\Authentication\Services;
 
-use Arhamlabs\ApiResponse\ApiResponse;
-use Arhamlabs\Authentication\Jobs\SendOtpJob;
 use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -12,37 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class LoginValidationService
 {
-    private $apiResponse;
-    public function __construct(
-        ApiResponse $apiResponse,
-    ) {
-        $this->apiResponse = $apiResponse;
-    }
-    //validate email/username
-    public function validation($request)
-    {
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'first_name' => 'string',
-                'last_name' => 'string',
-                'username' => 'string',
-                'email' => 'email|unique:users,email',
-                'password' => 'min:6|max:6',
-            ],
-            [
-                "email.required" => __("validation_messages.email_required"),
-                "email.unique" => __("validation_messages.email_unique"),
-                "email" => __("validation_messages.email_invalid"),
-                "password" => __("validation_messages.password_invalid"),
-            ]
-        );
-        if ($validator->fails()) {
-            return $validator->errors();
-        }
-        return array();
-    }
-
+  
     //validate email/username
     public function checkEmailOrUsername($email)
     {
@@ -51,11 +19,11 @@ class LoginValidationService
                 $validator = Validator::make(
                     ['email' => $email],
                     [
-                        'email' => 'bail|required|email',
+                        'email' => config("al_auth_validation_config.validation_rules.check_email"),
                     ],
                     [
-                        "email.required" => __("validation_messages.email_required"),
-                        "email" => __("validation_messages.email_invalid"),
+                        "email.required" => config("al_auth_validation_config.validation_messages.check_email_required"),
+                        "email" => config("al_auth_validation_config.validation_messages.check_email"),
                     ]
                 );
 
@@ -65,18 +33,19 @@ class LoginValidationService
                 }
             } else {
                 Log::info('Email address is not valid');
-                throw new Exception(__("validation_messages.email_invalid"), Response::HTTP_UNPROCESSABLE_ENTITY);
+                throw new Exception(config("al_auth_validation_config.validation_messages.check_email"), Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         } else {
             //This regular expression is used to validate a string that contains only alphanumeric characters and at least one letter (uppercase or lowercase).
             $validator = Validator::make(
                 ['username' => $email],
                 [
-                    'username' => 'bail|required|regex:/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/',
+                    'username' => config("al_auth_validation_config.validation_rules.check_username"),
                 ],
                 [
-                    "username.required" => __("validation_messages.username_required"),
-                    "username.regex" => __("validation_messages.username_invalid"),
+                    "username.required" => config("al_auth_validation_config.validation_messages.check_username_required"),
+                    "username.regex" => config("al_auth_validation_config.validation_messages.check_username_regex"),
+                    "username" => config("al_auth_validation_config.validation_messages.check_username_invalid"),
                 ]
             );
             if ($validator->fails()) {
@@ -92,11 +61,12 @@ class LoginValidationService
         $validator = Validator::make(
             ['password' => $password],
             [
-                'password' => 'required|min:6|max:12'
+                'password' => config("al_auth_validation_config.validation_rules.check_password"),
             ],
             [
-                "password.required" => __("validation_messages.password_required"),
-                "password" => __("validation_messages.password_invalid"),
+                "password.required" => config("al_auth_validation_config.validation_messages.check_password_required"),
+                "password.regex" => config("al_auth_validation_config.validation_messages.check_password_regex"),
+                "password" => config("al_auth_validation_config.validation_messages.check_password_invalid")
             ]
         );
 
@@ -109,10 +79,21 @@ class LoginValidationService
     //validate mobile
     public function checkMobileValidation($request)
     {
-        $validator = Validator::make(['mobile' => $request->mobile, 'country_code' => $request->country_code], [
-            'mobile' => 'required|regex:/^[0-9]{6,14}$/',
-            'country_code' => 'required'
-        ]);
+        $validator = Validator::make(
+            ['mobile' => $request->mobile, 'country_code' => $request->country_code],
+            [
+                'mobile' => config("al_auth_validation_config.validation_rules.check_mobile"),
+                'country_code' => config("al_auth_validation_config.validation_rules.check_country_code")
+            ],
+            [
+                "mobile.required" => config("al_auth_validation_config.validation_messages.check_mobile_required"),
+                "mobile.regex" => config("al_auth_validation_config.validation_messages.check_mobile_regex"),
+                "mobile" => config("al_auth_validation_config.validation_messages.check_mobile_invalid"),
+                "country_code.required" => config("al_auth_validation_config.validation_messages.check_country_code_required"),
+                "country_code.regex" => config("al_auth_validation_config.validation_messages.check_country_code_regex"),
+                "country_code" => config("al_auth_validation_config.validation_messages.check_country_code_invalid")
+            ]
+        );
 
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first(), Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -125,11 +106,11 @@ class LoginValidationService
         $validator = Validator::make(
             ['email' => $email],
             [
-                'email' => 'bail|required|email',
+                'email' => config("al_auth_validation_config.validation_rules.check_email"),
             ],
             [
-                "email.required" => __("validation_messages.email_required"),
-                "email" => __("validation_messages.email_invalid"),
+                "email.required" => config("al_auth_validation_config.validation_messages.check_email_required"),
+                "email" => config("al_auth_validation_config.validation_messages.check_email"),
             ]
         );
 

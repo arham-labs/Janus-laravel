@@ -2,7 +2,6 @@
 
 namespace Arhamlabs\Authentication\Services;
 
-use Exception;
 use Google_Client;
 use Carbon\Carbon;
 

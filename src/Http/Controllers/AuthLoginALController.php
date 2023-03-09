@@ -60,12 +60,15 @@ class AuthLoginALController extends Controller
             $data = array();
             if ($user != null && $user->exists() === true) {
                 if (Hash::check($password, $user->password) === true) {
+
                     //check user if blocked
-                    if (!empty($user->settings) && $user->settings->user_status === 2) {
-                        $customUserMessageTitle = __('error_messages.account_blocked_title');
-                        $customUserMessageText = __('error_messages.account_blocked_text');
-                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
-                        throw new Exception(__('error_messages.system_user_account_block'), 401);
+                    if (config('al_auth_config.is_check_user_block') === true) {
+                        if (!empty($user->settings) && $user->settings->user_status === 2) {
+                            $customUserMessageTitle = __('error_messages.account_blocked_title');
+                            $customUserMessageText = __('error_messages.account_blocked_text');
+                            $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                            throw new Exception(__('error_messages.system_user_account_block'), 401);
+                        }
                     }
                     $user_type = config('al_auth_config.user_Type') ? config('al_auth_config.user_Type') : 'app_user';
                     //get user type

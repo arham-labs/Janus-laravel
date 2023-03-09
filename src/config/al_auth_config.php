@@ -1,10 +1,7 @@
 <?php
 return [
     //check email verification requirement
-    'email_required' => true,
-
-    //check to send email verification mail
-    'email_verification_send' => true,
+    'email_verification' => true,
 
     //check mobile verification requirement 
     'mobile_verification_require' => true,
@@ -20,6 +17,9 @@ return [
 
     //default user type
     'user_Type' => 'app_user',
+
+    //if true then it will check user block status
+    'is_check_user_block' => true,
 
     //email verification mail expiry(platform dependency) in hours
     'email_verification_mail_expiry' => 48,

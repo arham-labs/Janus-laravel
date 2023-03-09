@@ -97,8 +97,8 @@ To handle default exception on api routes such as AuthenticationException/Access
 #### User registration
 
 - Users can register using email and password.Data will be saved in a temporary table.
-- Next If the config flag email_required=false then details will be saved in the main table i.e users table as well as user_setting table will be updated. 
-- If the config set to email_required=true and email_verification_send=true then verification mail will send to users email.
+- Next If the config flag email_verification=false then details will be saved in the main table i.e users table as well as user_setting table will be updated. 
+- If the config set to email_verification=true then verification mail will send to users email.
 
 ```bash
   POST /api/package/auth/register

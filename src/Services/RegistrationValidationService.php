@@ -2,39 +2,33 @@
 
 namespace Arhamlabs\Authentication\Services;
 
-use Arhamlabs\ApiResponse\ApiResponse;
-use Arhamlabs\Authentication\Jobs\SendOtpJob;
-use Exception;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 
 class RegistrationValidationService
 {
-    private $apiResponse;
-    public function __construct(
-        ApiResponse $apiResponse,
-    ) {
-        $this->apiResponse = $apiResponse;
-    }
+
     //validate email/username
     public function validation($request)
     {
         $validator = Validator::make(
             $request->all(),
             [
-                'first_name' => 'string',
-                'last_name' => 'string',
-                'username' => 'string',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|min:6|max:15',
+                'first_name' => config("al_auth_validation_config.validation_rules.registration_first_name"),
+                'last_name' => config("al_auth_validation_config.validation_rules.registration_last_name"),
+                'username' => config("al_auth_validation_config.validation_rules.registration_username"),
+                'email' => config("al_auth_validation_config.validation_rules.registration_email"),
+                'password' => config("al_auth_validation_config.validation_rules.registration_password"),
             ],
             [
-                "email.required" => __("validation_messages.email_required"),
-                "email.unique" => __("validation_messages.email_unique"),
-                "email" => __("validation_messages.email_invalid"),
-                "password" => __("validation_messages.password_invalid"),
+                "first_name" => config("al_auth_validation_config.validation_messages.registration_first_name"),
+                "last_name" => config("al_auth_validation_config.validation_messages.registration_last_name"),
+                "username" => config("al_auth_validation_config.validation_messages.registration_username"),
+                "email.required" => config("al_auth_validation_config.validation_messages.registration_email_required"),
+                "email.unique" => config("al_auth_validation_config.validation_messages.registration_email_unique"),
+                "email" => config("al_auth_validation_config.validation_messages.registration_email_invalid"),
+                "password.required" => config("al_auth_validation_config.validation_messages.registration_password_required"),
+                "password" => config("al_auth_validation_config.validation_messages.registration_password_invalid")
             ]
         );
         if ($validator->fails()) {

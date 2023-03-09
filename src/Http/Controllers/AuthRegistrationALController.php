@@ -51,13 +51,13 @@ class AuthRegistrationALController extends Controller
             //user registration in temporary table 
             $details = $this->authRegistrationALRepository->register($request);
             if ($details['status'] == 'success') {
-                // if email_required and mail_send flags set to be true then mail will be send 
-                if (config('al_auth_config.email_required') === true && config('al_auth_config.email_verification_send') === true) {
+                // if email_verification and mail_send flags set to be true then mail will be send 
+                if (config('al_auth_config.email_verification') === true) {
                     Log::info('mail');
                     $this->userService->SendMailVerificationService($details['data']);
                 }
-                // if email_required flag set to be false then data will be added to User table
-                if (config('al_auth_config.email_required') === false) {
+                // if email_verification flag set to be false then data will be added to User table
+                if (config('al_auth_config.email_verification') === false) {
 
                     /*
                     create user row into main table

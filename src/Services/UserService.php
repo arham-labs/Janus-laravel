@@ -6,11 +6,7 @@ use Arhamlabs\Authentication\Jobs\SendMailOtpJob;
 use Arhamlabs\Authentication\Jobs\SendMailVerificationJob;
 use Arhamlabs\Authentication\Jobs\SendOtpJob;
 use Carbon\Carbon;
-use Exception;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 
 class UserService

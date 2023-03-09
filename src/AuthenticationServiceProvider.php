@@ -37,7 +37,11 @@ class AuthenticationServiceProvider extends ServiceProvider
 
             $this->publishes([
                 __DIR__ . '/config/al_auth_config.php' => config_path('al_auth_config.php'),
-            ], 'config');
+            ], 'al_auth_config');
+
+            $this->publishes([
+                __DIR__ . '/config/al_auth_validation_config.php' => config_path('al_auth_validation_config.php'),
+            ], 'al_auth_validation_config');
 
             $this->publishes([
                 __DIR__ . '/resources/lang/en/messages.php' => resource_path('lang/en/messages.php'),
