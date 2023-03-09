@@ -197,11 +197,13 @@ class AuthLoginALController extends Controller
                 $model_name = $user->getMorphClass();
                 $userSettingDetails = AuthSetting::where('model_name', $model_name)->where('model_id', $user->id)->latest()->first();
                 //check user if blocked
-                if (!empty($userSettingDetails) && $userSettingDetails->user_status === 2) {
-                    $customUserMessageTitle = __('error_messages.account_blocked_title');
-                    $customUserMessageText = __('error_messages.account_blocked_text');
-                    $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
-                    throw new Exception(__('error_messages.system_user_account_block'), 401);
+                if (config('al_auth_config.is_check_user_block') === true) {
+                    if (!empty($userSettingDetails) && $userSettingDetails->user_status === 2) {
+                        $customUserMessageTitle = __('error_messages.account_blocked_title');
+                        $customUserMessageText = __('error_messages.account_blocked_text');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                        throw new Exception(__('error_messages.system_user_account_block'), 401);
+                    }
                 }
                 $ability =  $userSettingDetails->user_type ? 'userType:' . $userSettingDetails->user_type : 'userType:' .  config('al_auth_config.user_Type');
                 $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
