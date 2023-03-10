@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <title>Arhamlabs Authentication Package Forgot Password Testing</title>
+
+</head>
+
+<body>
+    <img style="height: auto" src="{{ $details['logo'] }}" alt="arhamlabs-logo" width="60">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">Reset Password Link</div>
+                    <div class="card-body">
+                        @if (session('resent'))
+                            <div class="alert alert-success" role="alert">
+                                {{ __('A fresh change password link has been sent to your email address.') }}
+                            </div>
+                        @endif
+                        <a href="{{ $details['tokenUrl'] }}">Click Here</a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p>Thank you,</p>
+    <p>Team Arhamlabs</p>
+
+
+</body>
+
+</html>

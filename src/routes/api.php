@@ -25,6 +25,9 @@ Route::middleware('guest')->group(function () {
 
     //User login using mobile,otp
     Route::post('api/package/auth/verify-otp', [AuthLoginALController::class, 'verifyOtp']);
+
+    //User forgot password via web
+    Route::post('api/package/auth/forgot-password', [AuthLoginALController::class, 'sendForgotPasswordLink']);
 });
 
 // Token Access

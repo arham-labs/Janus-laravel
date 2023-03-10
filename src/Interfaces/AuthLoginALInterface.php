@@ -36,4 +36,7 @@ interface AuthLoginALInterface
 
     // User web email verification
     public function webEmailVerification($request);
+
+    // User token validation for reset password
+    public function webResetPasswordTokenValidate($request);
 }

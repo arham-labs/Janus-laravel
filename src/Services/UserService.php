@@ -2,11 +2,16 @@
 
 namespace Arhamlabs\Authentication\Services;
 
+use Arhamlabs\Authentication\Jobs\SendMailForgotPasswordJob;
 use Arhamlabs\Authentication\Jobs\SendMailOtpJob;
 use Arhamlabs\Authentication\Jobs\SendMailVerificationJob;
 use Arhamlabs\Authentication\Jobs\SendOtpJob;
+use Arhamlabs\Authentication\Models\PasswordReset;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 
 class UserService
@@ -60,5 +65,37 @@ class UserService
             'tokenUrl' => url("email/verification/$token")
         ];
         dispatch(new SendMailVerificationJob($data));
+    }
+
+    public function SendResetPasswordLinkService($data)
+    {
+        $date = Carbon::now();
+        $email_encryption_key = 'fg_' . config('al_auth_config.email_encryption_key');
+        $tokenKey = Hash::make(Str::random(6));
+        $en = encrypt($data->uuid .  $email_encryption_key . $data->email .  $email_encryption_key . $date . $email_encryption_key . $tokenKey);
+        $token = Crypt::encryptString($en);
+        //   return  $token = Hash::make(encrypt(Str::random(6)));
+
+        $createEntry = PasswordReset::create([
+            'email' => $data->email,
+            'token' => $tokenKey
+        ]);
+        if (isset($createEntry)) {
+            $data = [
+                'type' => 'email',
+                'email' => $data->email,
+                'mobile' => $data->mobile,
+                'first_name' => $data->first_name,
+                'last_name' => $data->last_name,
+                'name' => $data->first_name . ' ' . $data->last_name,
+                'subject' => 'Forgot Password',
+                'view' => 'mails.sendForgotPasswordMail',
+                'logo' => url('assets/logo/logo.png'),
+                'tokenUrl' => url("reset-password/$token")
+            ];
+            dispatch(new SendMailForgotPasswordJob($data));
+        } else {
+            Log::debug("Password reset table entry issue");
+        }
     }
 }

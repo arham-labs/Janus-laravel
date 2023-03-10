@@ -18,14 +18,17 @@ return [
     //default user type
     'user_Type' => 'app_user',
 
-    //if true then it will check user block status
-    'is_check_user_block' => true,
+     //if true then it will check user block status
+     'is_check_user_block' => true,
 
-    //email verification mail expiry(platform dependency) in hours
-    'email_verification_mail_expiry' => 48,
-
-    //email verification mail expiry(platform dependency) in hours
-    'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH'),
+     //email verification mail expiry in hours
+     'email_verification_mail_expiry' => 48,
+ 
+     //forgot password mail expiry in hours
+     'forgot_password_mail_expiry' => 48,
+ 
+     //email link encryption key
+     'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH'),
 
     'linkedin' => [
         'LINKEDIN_REDIRECT_URI' => env('LINKEDIN_REDIRECT_URI'),

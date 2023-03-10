@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Arhamlabs\Authentication\Models\PasswordReset;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 class AuthLoginALController extends Controller
 {
@@ -340,6 +343,117 @@ class AuthLoginALController extends Controller
             $errorFile = $e->getFile();
             $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
             return $this->apiResponse->getResponse($e->getCode(), null,  $errorResponseMessage, $errorFile, $errorLine);
+        }
+    }
+
+
+    //User sent forgot password link
+    public function sendForgotPasswordLink(Request $request)
+    {
+        try {
+            //check valid email validation
+            $this->loginValidationService->checkEmailValidation($request->email);
+            //check user exist
+            $user = $this->authLoginALRepository->getUserByEmailOrUsername($request->email);
+
+            $customUserMessageTitle = __('messages.forgot_password_title');
+            $customUserMessageText = __('messages.forgot_password_text');
+            if (!empty($user)) {
+                if (!empty($user->settings) && $user->settings->user_status == 2) {
+                    $customUserMessageTitle = __('error_messages.forgot_password_blocked_user_title');
+                    $customUserMessageText = __('error_messages.forgot_password_blocked_user_text');
+                } else {
+                    $this->userService->SendResetPasswordLinkService($user);
+                }
+            }
+            $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+            return $this->apiResponse->getResponse(200);
+        } catch (Exception $e) {
+            $errorMessage = $e->getMessage();
+            $errorLine = $e->getLine();
+            $errorFile = $e->getFile();
+            $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
+            return $this->apiResponse->getResponse($e->getCode(), null,  $errorResponseMessage, $errorFile, $errorLine);
+        }
+    }
+
+    //web email verification
+    public function webResetPassword($token)
+    {
+        $details = $this->authLoginALRepository->webResetPasswordTokenValidate($token);
+        if ($details['isTokenValidate'] == true) {
+            $type = 'web';
+            $view = view('blades.reset-password', compact('token', 'type'))->with(['isToken' => 'Token verified!']);
+        } else {
+            $view = view('blades.reset-password');
+        }
+
+        return $view;
+    }
+
+    public function webUpdatePassword(Request $request)
+    {
+        try {
+
+            $data = $this->authLoginALRepository->webResetPasswordTokenValidate($request->user_token);
+            if ($data['isTokenValidate'] == true) {
+
+                $validator = Validator::make(
+                    $request->all(),
+                    [
+                        'password' => config("al_auth_validation_config.validation_rules.web_check_password"),
+                        'password_confirmation' => config("al_auth_validation_config.validation_rules.web_check_confirm_password"),
+                    ],
+                    [
+                        "password.required" => config("al_auth_validation_config.validation_messages.web_check_password_required"),
+                        "password.regex" => config("al_auth_validation_config.validation_messages.web_check_password_regex"),
+                        "password.confirmed" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_invalid"),
+                        "password" => config("al_auth_validation_config.validation_messages.web_check_password_invalid"),
+                        "password_confirmation.required" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_required"),
+                        "password_confirmation" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_invalid"),
+                    ]
+
+                );
+                if ($validator->fails()) {
+                    return Redirect::back()->withInput()->withErrors($validator);
+                }
+
+                $userPasswordUpdate = AuthUser::where('email', $data['userDetails']->email)->update([
+                    'password' => Hash::make($request->password)
+                ]);
+                if ($userPasswordUpdate) {
+                    $deleteEntry =  PasswordReset::where(['email' =>  $data['userDetails']->email])->delete();
+                    return Redirect::back()->withInput()->with(['statusSuccess' => 'Your password has been changed!']);
+                } else
+                    return back()->withInput()->with(['error' => 'Something went wrong!Please try again']);
+            }
+
+            return Redirect::back()->with(['error' => 'Token invalid!']);
+
+            $tokensDetails = PasswordReset::where(['token' => $request->user_token])->first();
+            if ($tokensDetails) {
+                if ($tokensDetails->user_type == 'guardian')
+                    $userUpdate = AuthUser::where('email', $tokensDetails->from_email)->update([
+                        'password' => Hash::make($request->password)
+                    ]);
+                if ($tokensDetails->user_type == 'child') {
+                    $child = Children::where('email', $tokensDetails->from_email)->orWhere('username', $tokensDetails->from_email)->latest()->first();
+                    $encodedPassword = base64_encode(base64_encode($child->uuid . "_" . $request->password));
+                    $userUpdate = Children::where('email', $tokensDetails->from_email)->orWhere('username', $tokensDetails->from_email)->update([
+                        'password' =>  $encodedPassword
+                    ]);
+                }
+
+                if ($userUpdate) {
+                    $deleteEntry =  PasswordReset::where(['token' => $tokensDetails->token])->delete();
+                    return redirect()->route('verified')->with('statusSuccess', 'Your password has been changed!');
+                } else
+                    return back()->withInput()->with('error', 'Something went wrong!');
+            } else
+                return back()->withInput()->with('error', 'Something went wrong!');
+        } catch (\Exception $error) {
+            return $error;
+            abort(404);
         }
     }
 }

@@ -14,8 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/email/verification/{token}', [AuthLoginALController::class, 'webEmailVerification'])->name('webEmailVerification');
+Route::group(['middleware' => ['web']], function () {
 
-Route::get('/verified', function () {
-    return view('mails.user-email-verified');
-})->name('verified');
+    Route::get('/email/verification/{token}', [AuthLoginALController::class, 'webEmailVerification'])->name('webEmailVerification');
+
+    Route::get('/verified', function () {
+        return view('mails.user-email-verified');
+    })->name('verified');
+
+    Route::get('/reset-password/{token}', [AuthLoginALController::class, 'webResetPassword'])->name('webResetPassword');
+    
+    Route::post('/reset/password-change', [AuthLoginALController::class, 'webUpdatePassword']);
+});

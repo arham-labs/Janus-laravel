@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
+use Arhamlabs\Authentication\Models\PasswordReset;
 class AuthLoginALRepository implements AuthLoginALInterface
 {
     public $userService;
@@ -313,5 +313,35 @@ class AuthLoginALRepository implements AuthLoginALInterface
             }
         }
         return $isEmailVerificationComplete;
+    }
+
+    //check reset password token validation
+    public function webResetPasswordTokenValidate($token)
+    {
+        $data = [
+            'isTokenValidate' => false,
+            'userDetails' => null
+        ];
+        if (isset($token)) {
+            $decrypt = Crypt::decryptString($token);
+            $decrypt = decrypt($decrypt);
+            $email_encryption_key = 'fg_' . config('al_auth_config.email_encryption_key');
+            $explode = explode($email_encryption_key, $decrypt);
+            if (!empty($explode[2]) && !empty($explode[3])) {
+                $tokensDetails = PasswordReset::where(['token' => $explode[3]])->first();
+                if (isset($tokensDetails)) {
+                    $currentDate = Carbon::now();
+                    $requestDate = $explode[2];
+                    if ($currentDate->diffInHours($requestDate) <= config('al_auth_config.forgot_password_mail_expiry')) {
+                        $userDetails = AuthUser::select('email')->where('email', $explode[1])->where('uuid', $explode[0])->latest()->first();
+                        if (!empty($userDetails)) {
+                            $data['isTokenValidate'] = true;
+                            $data['userDetails'] = $userDetails;
+                        }
+                    }
+                }
+            }
+        }
+        return $data;
     }
 }

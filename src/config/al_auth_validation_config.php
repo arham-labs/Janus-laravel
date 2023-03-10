@@ -21,7 +21,11 @@ return [
 
         "check_mobile" => 'required|regex:/^[0-9]{6,14}$/',
 
-        "check_country_code" => ''
+        "check_country_code" => '',
+
+        "web_check_password" => 'bail|required|min:6|max:15|confirmed',
+
+        "web_check_confirm_password" => 'required|min:6|max:15',
     ],
 
     'validation_messages' => [
@@ -72,7 +76,17 @@ return [
 
         'check_country_code_regex' => 'Country code format is invalid',
 
-        'check_country_code_invalid' => 'Country code format is invalid'
+        'check_country_code_invalid' => 'Country code format is invalid',
+
+        'web_check_password_required' => 'Password required',
+
+        'web_check_password_regex' => 'Password format is invalid',
+
+        'web_check_password_invalid' => 'Password format is invalid',
+
+        'web_check_confirm_password_required' => 'Confirm Password required',
+
+        'web_check_confirm_password_invalid' => 'The new password and confirm password do not match',
     ]
 
 ];
