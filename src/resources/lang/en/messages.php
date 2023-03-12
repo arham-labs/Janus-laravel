@@ -35,8 +35,12 @@ return [
 
     'user_setting_update_success_title' => 'User setting updated successfully',
 
-    'user_setting_update_success_text' => ''
+    'user_setting_update_success_text' => '',
 
+    'user_setting_update_success_title' => 'User setting updated successfully',
+    'user_setting_update_success_text' => '',
 
+    'forgot_password_title' => 'Forgot password link sent successfully',
+    'forgot_password_text' => '',
 
 ];

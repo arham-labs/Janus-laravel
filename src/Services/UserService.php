@@ -76,10 +76,13 @@ class UserService
         $token = Crypt::encryptString($en);
         //   return  $token = Hash::make(encrypt(Str::random(6)));
 
-        $createEntry = PasswordReset::create([
-            'email' => $data->email,
-            'token' => $tokenKey
-        ]);
+        $createEntry = PasswordReset::updateOrCreate(
+            ['email' => $data->email],
+            [
+                'email' => $data->email,
+                'token' => $tokenKey
+            ]
+        );
         if (isset($createEntry)) {
             $data = [
                 'type' => 'email',

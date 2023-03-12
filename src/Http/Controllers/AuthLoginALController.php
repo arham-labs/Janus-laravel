@@ -409,8 +409,7 @@ class AuthLoginALController extends Controller
                         "password.regex" => config("al_auth_validation_config.validation_messages.web_check_password_regex"),
                         "password.confirmed" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_invalid"),
                         "password" => config("al_auth_validation_config.validation_messages.web_check_password_invalid"),
-                        "password_confirmation.required" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_required"),
-                        "password_confirmation" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_invalid"),
+                        "password_confirmation.required" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_required")
                     ]
 
                 );
@@ -429,31 +428,8 @@ class AuthLoginALController extends Controller
             }
 
             return Redirect::back()->with(['error' => 'Token invalid!']);
-
-            $tokensDetails = PasswordReset::where(['token' => $request->user_token])->first();
-            if ($tokensDetails) {
-                if ($tokensDetails->user_type == 'guardian')
-                    $userUpdate = AuthUser::where('email', $tokensDetails->from_email)->update([
-                        'password' => Hash::make($request->password)
-                    ]);
-                if ($tokensDetails->user_type == 'child') {
-                    $child = Children::where('email', $tokensDetails->from_email)->orWhere('username', $tokensDetails->from_email)->latest()->first();
-                    $encodedPassword = base64_encode(base64_encode($child->uuid . "_" . $request->password));
-                    $userUpdate = Children::where('email', $tokensDetails->from_email)->orWhere('username', $tokensDetails->from_email)->update([
-                        'password' =>  $encodedPassword
-                    ]);
-                }
-
-                if ($userUpdate) {
-                    $deleteEntry =  PasswordReset::where(['token' => $tokensDetails->token])->delete();
-                    return redirect()->route('verified')->with('statusSuccess', 'Your password has been changed!');
-                } else
-                    return back()->withInput()->with('error', 'Something went wrong!');
-            } else
-                return back()->withInput()->with('error', 'Something went wrong!');
         } catch (\Exception $error) {
-            return $error;
-            abort(404);
+            return Redirect::back()->with(['error' => 'Token invalid!']);
         }
     }
 }

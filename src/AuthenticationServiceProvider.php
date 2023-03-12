@@ -54,6 +54,10 @@ class AuthenticationServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/resources/views/mails' => resource_path('views/mails'),
             ], 'mails');
+            
+            $this->publishes([
+                __DIR__ . '/resources/views/blades' => resource_path('views/blades'),
+            ], 'blades');
         }
     }
 }
