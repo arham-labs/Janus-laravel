@@ -442,7 +442,7 @@
                                 font-weight: 100;
                             "></span>
                             </div>
-                            Link Expired
+                            {{__('error_messages.mail_expired_token')}}
                         </div>
                     </div>
                 @endif

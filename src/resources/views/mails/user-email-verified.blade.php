@@ -48,7 +48,33 @@
                             {{ $message }}
                         </div>
                     @else
-                        This link is expired.
+                        <div class="alert alert-message" role="alert">
+
+                            <div class=""
+                                style="color: red;
+                    font-size: 20px;
+                    display: flex;
+                    justify-content: center;
+                    padding: 1px;"
+                                role="alert">
+                                <div
+                                    style="width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        background: red;
+                        display: flex;
+                        padding: 6px;
+                        margin: 0 4px;">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"
+                                        style="
+                                color: white;
+                                font-size: 15px;
+                                font-weight: 100;
+                            "></span>
+                                </div>
+                                {{ __('error_messages.mail_expired_token') }}
+                            </div>
+                        </div>
                     @endif
                 </div>
             </div>

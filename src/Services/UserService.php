@@ -36,7 +36,7 @@ class UserService
             'otp' => $data->otp,
             'email' => $data->email ? $data->email : null,
             'mobile' => $data->mobile ? $data->mobile : null,
-            'subject' => 'OTP VERIFICATION',
+            'subject' =>  __('messages.mail_subject_otp_verification'),
             'view' => 'mails.sendOtpMail',
             'logo' => url('assets/logo/logo.png'),
         ];
@@ -59,7 +59,7 @@ class UserService
             'first_name' => $data->first_name,
             'last_name' => $data->last_name,
             'name' => $data->first_name . ' ' . $data->last_name,
-            'subject' => 'Email Verification',
+            'subject' =>  __('messages.mail_subject_email_verification'),
             'view' => 'mails.sendVerificationMail',
             'logo' => url('assets/logo/logo.png'),
             'tokenUrl' => url("email/verification/$token")
@@ -70,11 +70,10 @@ class UserService
     public function SendResetPasswordLinkService($data)
     {
         $date = Carbon::now();
-        $email_encryption_key = 'fg_' . config('al_auth_config.email_encryption_key');
+        $email_encryption_key = 'fp_' . config('al_auth_config.email_encryption_key');
         $tokenKey = Hash::make(Str::random(6));
         $en = encrypt($data->uuid .  $email_encryption_key . $data->email .  $email_encryption_key . $date . $email_encryption_key . $tokenKey);
         $token = Crypt::encryptString($en);
-        //   return  $token = Hash::make(encrypt(Str::random(6)));
 
         $createEntry = PasswordReset::updateOrCreate(
             ['email' => $data->email],
@@ -91,7 +90,7 @@ class UserService
                 'first_name' => $data->first_name,
                 'last_name' => $data->last_name,
                 'name' => $data->first_name . ' ' . $data->last_name,
-                'subject' => 'Forgot Password',
+                'subject' => __('messages.mail_subject_forgot_password'),
                 'view' => 'mails.sendForgotPasswordMail',
                 'logo' => url('assets/logo/logo.png'),
                 'tokenUrl' => url("reset-password/$token")

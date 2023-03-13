@@ -2,24 +2,11 @@
 
 namespace Arhamlabs\Authentication\Repositories;
 
-use Arhamlabs\Authentication\Models\TempOtp;
-use App\Models\User;
 use Arhamlabs\Authentication\Interfaces\AuthRegistrationALInterface;
-use Arhamlabs\Authentication\Jobs\SendOtpJob;
-use Arhamlabs\Authentication\Models\AuthSetting;
-use Arhamlabs\Authentication\Models\AuthUser;
 use Arhamlabs\Authentication\Models\TempRegistration;
-use Arhamlabs\Authentication\Request\AuthRegistrationRequest;
 use Arhamlabs\Authentication\Services\UserService;
 use Arhamlabs\Authentication\Services\TokenService;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class AuthRegistrationALRepository implements AuthRegistrationALInterface
@@ -40,7 +27,6 @@ class AuthRegistrationALRepository implements AuthRegistrationALInterface
     //temporary registration 
     public function register($request)
     {
-        // try {
         $password = $request->password;
         if (isset($request->password)) {
             if (Hash::needsRehash($password)) {
@@ -72,10 +58,5 @@ class AuthRegistrationALRepository implements AuthRegistrationALInterface
                 "data" => null
             ];
         }
-        // } catch (Exception $e) {
-        //     $errorMessage = $e->getMessage();
-        //     $errorResponseMessage = $errorMessage != null ? $errorMessage : __('error_messages.system_error');
-        //     throw new Exception($errorResponseMessage, $e->getCode());
-        // }
     }
 }

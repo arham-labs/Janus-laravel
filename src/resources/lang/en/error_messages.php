@@ -46,4 +46,8 @@ return [
 
     'forgot_password_blocked_user_title' => 'Users account has been blocked',
     'forgot_password_blocked_user_text' => '',
+
+    //mail template error keys
+    'mail_invalid_token' => 'Invalid Token',
+    'mail_expired_token' => 'Link Expired',
 ];

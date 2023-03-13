@@ -149,7 +149,6 @@ class AuthLoginALController extends Controller
             $this->loginValidationService->checkEmailValidation($request->email);
             $details = $this->authLoginALRepository->sentEmailOtp($request->email);
             if ($details === true) {
-                $customUserMessageTitle = "OTP sent successfully";
                 $customUserMessageTitle = __('messages.otp_send_success_title');
                 $customUserMessageText = __('messages.otp_send_success_text');
                 $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
@@ -234,7 +233,7 @@ class AuthLoginALController extends Controller
     }
 
     //logout
-    public function logout(Request $request)
+    public function logout()
     {
         try {
             $details = $this->authLoginALRepository->logout();
@@ -281,7 +280,7 @@ class AuthLoginALController extends Controller
         try {
             $emailVerified = $this->authLoginALRepository->webEmailVerification($token);
             if ($emailVerified == 1) {
-                return view('mails.user-email-verified')->with(['message' => 'Your email has been verified!']);
+                return view('mails.user-email-verified')->with(['message' => __('messages.mail_success_email_verification')]);
             } else
                 return view('mails.user-email-verified');
         } catch (\Exception $error) {
@@ -422,14 +421,14 @@ class AuthLoginALController extends Controller
                 ]);
                 if ($userPasswordUpdate) {
                     $deleteEntry =  PasswordReset::where(['email' =>  $data['userDetails']->email])->delete();
-                    return Redirect::back()->withInput()->with(['statusSuccess' => 'Your password has been changed!']);
+                    return Redirect::back()->withInput()->with(['statusSuccess' => __('messages.mail_success_email_verification')]);
                 } else
                     return back()->withInput()->with(['error' => 'Something went wrong!Please try again']);
             }
 
-            return Redirect::back()->with(['error' => 'Token invalid!']);
+            return Redirect::back()->with(['error' =>  __('error_messages.mail_invalid_token')]);
         } catch (\Exception $error) {
-            return Redirect::back()->with(['error' => 'Token invalid!']);
+            return Redirect::back()->with(['error' =>  __('error_messages.mail_invalid_token')]);
         }
     }
 }

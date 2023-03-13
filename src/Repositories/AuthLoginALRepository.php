@@ -5,22 +5,17 @@ namespace Arhamlabs\Authentication\Repositories;
 use Arhamlabs\Authentication\Models\TempOtp;
 use App\Models\User;
 use Arhamlabs\Authentication\Interfaces\AuthLoginALInterface;
-use Arhamlabs\Authentication\Jobs\SendOtpJob;
 use Arhamlabs\Authentication\Models\AuthSetting;
 use Arhamlabs\Authentication\Models\AuthUser;
 use Arhamlabs\Authentication\Models\TempRegistration;
-use Arhamlabs\Authentication\Request\AuthRegistrationRequest;
 use Arhamlabs\Authentication\Services\UserService;
 use Arhamlabs\Authentication\Services\TokenService;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Arhamlabs\Authentication\Models\PasswordReset;
 class AuthLoginALRepository implements AuthLoginALInterface
@@ -38,9 +33,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
     //update main user table with
     public function CreateMainTableEntry($request, $model)
     {
-        // try {
-
-        $password = $request->password;
+          $password = $request->password;
         if (isset($request->password)) {
             if (Hash::needsRehash($password)) {
                 $password = Hash::make($password);
@@ -61,7 +54,6 @@ class AuthLoginALRepository implements AuthLoginALInterface
             'email_verified_at' => $request->email_verified_at ? $request->email_verified_at : null,
         ]);
         if (isset($createRow)) {
-            // $model_name = $createRow->getMorphClass();
             $this->updateAuthUserSetting($createRow, $request);
             return [
                 'status' => 'success',
@@ -73,17 +65,11 @@ class AuthLoginALRepository implements AuthLoginALInterface
                 "data" => null
             ];
         }
-        // } catch (Exception $e) {
-        //     $errorMessage = $e->getMessage();
-        //     $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
-        //     throw new Exception($errorResponseMessage, $e->getCode());
-        // }
     }
 
     //send otp via sms on mobile
     public function sentMobileOtp($request)
     {
-        // try {
         $expireTime = config('al_config.otp_expire') ? config('al_config.otp_expire') : 5;
 
         $tempOtp = $this->userService->generateOtp();
@@ -107,18 +93,11 @@ class AuthLoginALRepository implements AuthLoginALInterface
         } else {
             return false;
         }
-        // } catch (Exception $e) {
-        //     $errorMessage = $e->getMessage();
-        //     $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
-        //     throw new Exception($errorResponseMessage, $e->getCode());
-        // }
     }
 
     //send otp via mail on email
     public function sentEmailOtp($email)
     {
-        // return true;
-        // try {
         $expireTime = config('al_config.otp_expire') ? config('al_config.otp_expire') : 5;
         $tempOtp = $this->userService->generateOtp();
         $createMobileOtp = TempOtp::updateOrCreate(
@@ -139,11 +118,6 @@ class AuthLoginALRepository implements AuthLoginALInterface
         } else {
             return false;
         }
-        // } catch (Exception $e) {
-        //     $errorMessage = $e->getMessage();
-        //     $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
-        //     throw new Exception($errorResponseMessage, $e->getCode());
-        // }
     }
 
 
@@ -214,7 +188,6 @@ class AuthLoginALRepository implements AuthLoginALInterface
 
     public function logout()
     {
-        // try {
         Log::channel('auth')->info('User Logout');
         $user = Auth::user();
         $request = new Request;
@@ -224,11 +197,6 @@ class AuthLoginALRepository implements AuthLoginALInterface
         return [
             'status' => 'success',
         ];
-        // } catch (Exception $e) {
-        //     $errorMessage = $e->getMessage();
-        //     $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
-        //     throw new Exception($errorResponseMessage, $e->getCode());
-        // }
     }
     public function updateAuthUserSetting($model, $request)
     {
@@ -286,7 +254,6 @@ class AuthLoginALRepository implements AuthLoginALInterface
                 $tempUserDetails = TempRegistration::where('email', $explode[1])->where('uuid', $explode[0])->latest()->first();
                 if (!empty($tempUserDetails)) {
                     $tempUserDetails['email_verified_at'] = Carbon::now();
-                    // return $tempUserDetails;
                     $user = new AuthUser;
                     $currentUserDetails = AuthUser::where('email', $tempUserDetails)->latest()->first();
 
@@ -325,7 +292,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
         if (isset($token)) {
             $decrypt = Crypt::decryptString($token);
             $decrypt = decrypt($decrypt);
-            $email_encryption_key = 'fg_' . config('al_auth_config.email_encryption_key');
+            $email_encryption_key = 'fp_' . config('al_auth_config.email_encryption_key');
             $explode = explode($email_encryption_key, $decrypt);
             if (!empty($explode[2]) && !empty($explode[3])) {
                 $tokensDetails = PasswordReset::where(['token' => $explode[3]])->first();
