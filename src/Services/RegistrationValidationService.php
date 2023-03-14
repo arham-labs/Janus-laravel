@@ -34,6 +34,5 @@ class RegistrationValidationService
         if ($validator->fails()) {
             return $validator->errors();
         }
-        return array();
     }
 }

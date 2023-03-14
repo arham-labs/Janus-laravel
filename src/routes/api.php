@@ -37,4 +37,8 @@ Route::middleware('auth:sanctum', 'abilities:userType:app_user')->group(function
 
     //Update user setting
     Route::post('api/package/auth/setting/update', [AuthLoginALController::class, 'userSettingUpdate']);
+
+    
+    //Set/Change password
+    Route::post('api/package/auth/update-password', [AuthLoginALController::class, 'userSetOrChangePassword']);
 });

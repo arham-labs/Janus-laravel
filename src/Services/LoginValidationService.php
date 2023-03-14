@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class LoginValidationService
 {
-  
+
     //validate email/username
     public function checkEmailOrUsername($email)
     {
@@ -36,7 +36,6 @@ class LoginValidationService
                 throw new Exception(config("al_auth_validation_config.validation_messages.check_email"), Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         } else {
-            //This regular expression is used to validate a string that contains only alphanumeric characters and at least one letter (uppercase or lowercase).
             $validator = Validator::make(
                 ['username' => $email],
                 [
@@ -116,6 +115,30 @@ class LoginValidationService
 
         if ($validator->fails()) {
             throw new Exception($validator->errors()->first(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+    }
+    //validate set/change password request
+    public function validateSetChangePassword($request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'password' => config("al_auth_validation_config.validation_rules.web_check_password"),
+                'password_confirmation' => config("al_auth_validation_config.validation_rules.web_check_confirm_password"),
+            ],
+            [
+                "password.required" => config("al_auth_validation_config.validation_messages.web_check_password_required"),
+                "password.regex" => config("al_auth_validation_config.validation_messages.web_check_password_regex"),
+                "password.confirmed" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_invalid"),
+                "password" => config("al_auth_validation_config.validation_messages.web_check_password_invalid"),
+                "password_confirmation.required" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_required"),
+                "password_confirmation" => config("al_auth_validation_config.validation_messages.web_check_password_invalid")
+            ]
+
+        );
+
+        if ($validator->fails()) {
+            return $validator->errors();
         }
     }
 }

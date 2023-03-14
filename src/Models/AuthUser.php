@@ -55,6 +55,6 @@ class AuthUser extends Authenticatable
 
     public function settings()
     {
-        return $this->hasOne(AuthSetting::class, 'model_id', 'id')->select('user_type', 'user_status', 'registration_at', 'email_verified_at', 'last_login_at', 'last_logout_at')->where('model_name', 'Arhamlabs\Authentication\Models\AuthUser');
+        return $this->hasOne(AuthSetting::class, 'model_id', 'id')->where('model_name', 'Arhamlabs\Authentication\Models\AuthUser');
     }
 }

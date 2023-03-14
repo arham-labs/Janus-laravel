@@ -251,7 +251,7 @@ class AuthLoginALController extends Controller
             return $this->apiResponse->getResponse($e->getCode(), null,  $errorResponseMessage, $errorFile, $errorLine);
         }
     }
-    //logout
+    //update user setting
     public function userSettingUpdate(Request $request)
     {
         try {
@@ -397,23 +397,9 @@ class AuthLoginALController extends Controller
             $data = $this->authLoginALRepository->webResetPasswordTokenValidate($request->user_token);
             if ($data['isTokenValidate'] == true) {
 
-                $validator = Validator::make(
-                    $request->all(),
-                    [
-                        'password' => config("al_auth_validation_config.validation_rules.web_check_password"),
-                        'password_confirmation' => config("al_auth_validation_config.validation_rules.web_check_confirm_password"),
-                    ],
-                    [
-                        "password.required" => config("al_auth_validation_config.validation_messages.web_check_password_required"),
-                        "password.regex" => config("al_auth_validation_config.validation_messages.web_check_password_regex"),
-                        "password.confirmed" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_invalid"),
-                        "password" => config("al_auth_validation_config.validation_messages.web_check_password_invalid"),
-                        "password_confirmation.required" => config("al_auth_validation_config.validation_messages.web_check_confirm_password_required")
-                    ]
-
-                );
-                if ($validator->fails()) {
-                    return Redirect::back()->withInput()->withErrors($validator);
+                $validate =   $this->loginValidationService->validateSetChangePassword($request);
+                if (!empty($validate)) {
+                    return Redirect::back()->withInput()->withErrors($validate);
                 }
 
                 $userPasswordUpdate = AuthUser::where('email', $data['userDetails']->email)->update([
@@ -425,10 +411,54 @@ class AuthLoginALController extends Controller
                 } else
                     return back()->withInput()->with(['error' => 'Something went wrong!Please try again']);
             }
-
             return Redirect::back()->with(['error' =>  __('error_messages.mail_invalid_token')]);
         } catch (\Exception $error) {
             return Redirect::back()->with(['error' =>  __('error_messages.mail_invalid_token')]);
+        }
+    }
+
+
+    public function userSetOrChangePassword(Request $request)
+    {
+        try {
+            $customUserMessageTitle = __('messages.set_password_title');
+            $customUserMessageText = __('messages.set_password_text');
+            $user = Auth::user();
+            $validate =   $this->loginValidationService->validateSetChangePassword($request);
+            if (!empty($validate)) {
+                $this->apiResponse->setCustomErrors($validate);
+                throw new Exception('Validation error', 422);
+            }
+            if (empty($user)) {
+                throw new Exception(__('messages.system_user_account_missing'), 401);
+            } else if (!empty($user->password)) {
+                $check = Hash::check($request->current_password, auth()->user()->password);
+                if (empty($check)) {
+                    $error = array("current_password" => [
+                        config('al_auth_validation_config.validation_messages.current_password_invalid')
+                    ]);
+                    $this->apiResponse->setCustomErrors($error);
+                    throw new Exception('Validation error', 422);
+                } else {
+                    $customUserMessageTitle = __('messages.change_password_title');
+                    $customUserMessageText = __('messages.change_password_text');
+                }
+            }
+            $userUpdate = AuthUser::where('id', $user->id)->update([
+                'password' => Hash::make($request->password)
+            ]);
+            if (isset($userUpdate)) {
+                $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                return $this->apiResponse->getResponse(200, array());
+            } else {
+                throw new Exception(__('error_messages.system_error'), 500);
+            }
+        } catch (Exception $e) {
+            $errorMessage = $e->getMessage();
+            $errorLine = $e->getLine();
+            $errorFile = $e->getFile();
+            $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
+            return $this->apiResponse->getResponse($e->getCode(), null,  $errorResponseMessage, $errorFile, $errorLine);
         }
     }
 }

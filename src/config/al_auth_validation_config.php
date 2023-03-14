@@ -25,7 +25,7 @@ return [
 
         "web_check_password" => 'bail|required|min:6|max:15|confirmed',
 
-        "web_check_confirm_password" => 'required|min:6|max:15',
+        "web_check_confirm_password" => 'required',
     ],
 
     'validation_messages' => [
@@ -87,6 +87,8 @@ return [
         'web_check_confirm_password_required' => 'Confirm Password required',
 
         'web_check_confirm_password_invalid' => 'The new password and confirm password do not match',
+
+        'current_password_invalid' => 'Current password is invalid',
     ]
 
 ];

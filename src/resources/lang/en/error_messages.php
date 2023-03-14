@@ -17,6 +17,8 @@ return [
 
     'system_user_account_block' => 'Users account has been blocked',
 
+    'system_user_account_missing' => 'Users account not found',
+
     'account_blocked_title' => 'Your account has been blocked',
     'account_blocked_text' => '',
 

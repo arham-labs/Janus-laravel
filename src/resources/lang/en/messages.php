@@ -37,6 +37,12 @@ return [
     'forgot_password_title' => 'Forgot password link sent successfully',
     'forgot_password_text' => '',
 
+    'set_password_title' => 'Your password has been set successfully',
+    'set_password_text' => '',
+
+    'change_password_title' => 'Your password has been update successfully',
+    'change_password_text' => '',
+
     //mail template key messages
     'mail_subject_email_verification' => 'Email Verification',
     'mail_success_email_verification' => 'Your email has been verified!',

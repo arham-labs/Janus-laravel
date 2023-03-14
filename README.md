@@ -115,6 +115,7 @@ To handle default exception on api routes such as AuthenticationException/Access
 | `password` | `string` |*Required*|
 | `mobile`   | `number` ||  
 | `country_code` | `number` ||
+| `user_type` | `string` ||
 
 ---
 
@@ -217,6 +218,24 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 ---
 
+### Forgot Password
+- Users can reset password using email. Reset link will be sent to the user via email.User can change his password via reset link.
+- For blocked user package will not generate reset link. 
+
+
+
+```bash
+  POST /api/package/auth/forgot-password
+
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `email`    | `string` | *Required*|
+
+
+
+---
 ### Logout
 - This api is used to logout user and it will destroy sanctum token of that user.
 
@@ -227,3 +246,136 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 ```
 
+### Set/Change Password
+- Users can set/change password using sanctum token. If user login via sso or otp then user can set their password for first time.For next time user have to provide current password to change his password. 
+
+
+
+```bash
+  POST /api/package/auth/update-password
+
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `password`    | `string` | *Required*|
+| `password_confirmation`    | `string` | *Required*|
+| `current_password`    | `string` | *Required* (for set password)|
+
+
+
+---
+
+
+
+# *Social Media Login/Registration*
+
+
+### Google
+- Users can login via google account using id token.For google account validation package will validate id token and aud  using [Google Client](https://packagist.org/packages/google/apiclient) package.
+
+
+
+
+```bash
+  POST /api/package/auth/sso-login
+
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `email`    | `string` | *Required*|
+| `idToken`    | `string` | *Required*|
+| `sso_type`    | `string` | *Required*|
+| `aud`    | `string` | *Required*|
+
+
+
+
+### Linkdin
+- Users can login via linkdin account using id token.For linkdin account validation package will validate id token.
+
+
+
+```bash
+  POST /api/package/auth/sso-login
+
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `email`    | `string` | *Required*|
+| `idToken`    | `string` | *Required*|
+| `sso_type`    | `string` | *Required*|
+
+
+
+### Apple 
+- Users can login via apple account using id token.For linkdin account validation package will validate id token.
+
+
+
+```bash
+  POST /api/package/auth/sso-login
+
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `email`    | `string` | *Required*|
+| `idToken`    | `string` | *Required*|
+| `sso_type`    | `string` | *Required*|
+
+
+
+
+# *Package config file*
+
+
+### al_auth_config.php
+- Developer can change configuration using al_auth_config.php file as follows.
+
+
+
+```bash
+
+    //check email verification requirement
+    'email_verification' => true,
+
+    //length for otp 
+    'otp_length' => 4,
+
+    //otp expire in minutes
+    'otp_expire' => 5,
+
+    //allow multi login with same credentials
+    'user_multi_login' => true,
+
+    //default user type
+    'user_Type' => 'app_user',
+
+     //if true then it will check user block status
+     'is_check_user_block' => true,
+
+     //email verification mail expiry in hours
+     'email_verification_mail_expiry' => 48,
+ 
+     //forgot password mail expiry in hours
+     'forgot_password_mail_expiry' => 48,
+ 
+     //email link encryption key
+     'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH'),
+
+    'linkedin' => [
+        'LINKEDIN_REDIRECT_URI' => env('LINKEDIN_REDIRECT_URI'),
+        'LINKEDIN_CLIENT_ID' => env('LINKEDIN_CLIENT_ID'),
+        'LINKEDIN_CLIENT_SECRET' => env('LINKEDIN_CLIENT_SECRET')
+    ],
+
+    'apple' => [
+        'TOKEN_ISS' => env('TOKEN_ISS', "https://appleid.apple.com"),
+        'TOKEN_AUD' => env('TOKEN_AUD', "com.example.co.uk.app"),
+    ]
+
+
+```

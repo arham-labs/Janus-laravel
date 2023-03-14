@@ -3,11 +3,8 @@ return [
     //check email verification requirement
     'email_verification' => true,
 
-    //check mobile verification requirement 
-    'mobile_verification_require' => true,
-
     //length for otp 
-    'otp_length' => 6,
+    'otp_length' => 4,
 
     //otp expire in minutes
     'otp_expire' => 5,
