@@ -5,8 +5,8 @@ namespace Arhamlabs\Authentication\Services;
 use Arhamlabs\Authentication\Jobs\SendMailForgotPasswordJob;
 use Arhamlabs\Authentication\Jobs\SendMailOtpJob;
 use Arhamlabs\Authentication\Jobs\SendMailVerificationJob;
-use Arhamlabs\Authentication\Jobs\SendOtpJob;
 use Arhamlabs\Authentication\Models\PasswordReset;
+use Arhamlabs\NotificationHandler\Jobs\SmsNotificationHandlerJob;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
@@ -16,8 +16,6 @@ use Illuminate\Support\Str;
 
 class UserService
 {
-
-
     public function generateOtp()
     {
         $digits = config('al_auth_config.otp_length') ? config('al_auth_config.otp_length') : 4;
@@ -29,10 +27,10 @@ class UserService
         return date('Y-m-d h:i:s', strtotime('+3 month'));
     }
 
-    public function SendOtpService($data)
+    public function SendMailOtpService($data)
     {
         $details = [
-            'type' => $data->type,
+            'type' => 'email',
             'otp' => $data->otp,
             'email' => $data->email ? $data->email : null,
             'mobile' => $data->mobile ? $data->mobile : null,
@@ -40,10 +38,20 @@ class UserService
             'view' => 'mails.sendOtpMail',
             'logo' => url('assets/logo/logo.png'),
         ];
-        if ($data->type == 'sms')
-            dispatch(new SendOtpJob($details));
-        else
-            dispatch(new SendMailOtpJob($details));
+        dispatch(new SendMailOtpJob($details));
+    }
+
+    public function sendSmsOtpService($data)
+    {
+        $details = [
+            'type' => 'sms',
+            'otp' => $data->otp,
+            'country_code' => $data->country_code ? $data->country_code : null,
+            'mobile' => $data->mobile ? $data->mobile : null,
+            'to' => $data->country_code . $data->mobile,
+            'body' => __('messages.sms_otp_title', ['name' => 'sid', 'otp' => $data->otp])
+        ];
+        dispatch(new SmsNotificationHandlerJob($details));
     }
     public function SendMailVerificationService($data)
     {

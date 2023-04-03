@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Arhamlabs\Authentication\Models\PasswordReset;
+
 class AuthLoginALRepository implements AuthLoginALInterface
 {
     public $userService;
@@ -33,7 +34,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
     //update main user table with
     public function CreateMainTableEntry($request, $model)
     {
-          $password = $request->password;
+        $password = $request->password;
         if (isset($request->password)) {
             if (Hash::needsRehash($password)) {
                 $password = Hash::make($password);
@@ -88,7 +89,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
         );
 
         if ($createMobileOtp) {
-            $this->userService->sendOtpService($createMobileOtp);
+            $this->userService->sendSmsOtpService($createMobileOtp);
             return true;
         } else {
             return false;
@@ -113,7 +114,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
         );
 
         if ($createMobileOtp) {
-            $this->userService->sendOtpService($createMobileOtp);
+            $this->userService->sendMailOtpService($createMobileOtp);
             return true;
         } else {
             return false;
@@ -122,7 +123,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
 
 
     //get user details using username/email
-    public function checkOtp($username, $otp)
+    public function checkMailOtp($email, $otp)
     {
         $validateOtpResponse = [
             'status' => 'invalid',
@@ -130,15 +131,52 @@ class AuthLoginALRepository implements AuthLoginALInterface
             'customUserMessageText' => __('error_messages.invalid_otp_text')
         ];
         $details = TempOtp::where('otp', $otp)
-            ->where(function ($q) use ($username) {
+            ->where(function ($q) use ($email) {
                 $q
-                    ->Where('email', strtolower($username))
-                    ->orWhere('mobile', strtolower($username));
+                    ->where('email', strtolower($email));
             })
             ->first();
         if (isset($details)) {
             $currentDate = Carbon::now();
 
+            if ($currentDate->lessThan($details->expire_at) == true) {
+                $tempOTPCreated = TempOtp::where('uuid', $details->uuid)->update([
+                    'expire_at' =>  Carbon::now()
+                ]);
+                $validateOtpResponse = [
+                    'status' => 'validate',
+                    'customUserMessageTitle' => __('messages.otp_verify_success_title'),
+                    'customUserMessageText' => __('messages.otp_verify_success_text')
+                ];
+            } else {
+                $validateOtpResponse = [
+                    'status' => 'invalid',
+                    'customUserMessageTitle' => __('error_messages.expired_otp_title'),
+                    'customUserMessageText' => __('error_messages.expired_otp_text')
+                ];
+            }
+        }
+        return $validateOtpResponse;
+    }
+
+
+    //get user details using username/email
+    public function checkSmsOtp($mobile, $country_code, $otp)
+    {
+        $validateOtpResponse = [
+            'status' => 'invalid',
+            'customUserMessageTitle' => __('error_messages.invalid_otp_title'),
+            'customUserMessageText' => __('error_messages.invalid_otp_text')
+        ];
+        $details = TempOtp::where('otp', $otp)
+            ->where(function ($q) use ($mobile, $country_code) {
+                $q
+                    ->where('country_code', strtolower($country_code))
+                    ->where('mobile', strtolower($mobile));
+            })
+            ->first();
+        if (isset($details)) {
+            $currentDate = Carbon::now();
             if ($currentDate->lessThan($details->expire_at) == true) {
                 $tempOTPCreated = TempOtp::where('uuid', $details->uuid)->update([
                     'expire_at' =>  Carbon::now()
@@ -170,10 +208,12 @@ class AuthLoginALRepository implements AuthLoginALInterface
 
 
     //get user details using username/email
-    public function getUserByMobile($mobile)
+    public function getUserByMobile($mobile, $country_code)
     {
         return AuthUser::with('settings')
-            ->where('mobile', $mobile)->first();
+            ->where('mobile', $mobile)
+            ->where('country_code', $country_code)
+            ->first();
     }
 
     //get user details using username/email/mobile

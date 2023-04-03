@@ -15,7 +15,7 @@ interface AuthLoginALInterface
     public function getUserByEMU($username);
 
     //User details using mobile
-    public function getUserByMobile($mobile);
+    public function getUserByMobile($mobile, $country_code);
 
     //User details using email|username
     public function getUserByEmailOrUsername($email);
@@ -24,7 +24,7 @@ interface AuthLoginALInterface
     public function sentEmailOtp($user);
 
     //verify OTP
-    public function checkOtp($user_id, $otp);
+    public function checkMailOtp($user_id, $otp);
 
     //User logout
     public function logout();

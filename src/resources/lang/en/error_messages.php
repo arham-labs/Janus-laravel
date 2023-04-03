@@ -32,6 +32,8 @@ return [
     'invalid_otp_title' => 'Invalid otp',
     'invalid_otp_text' => '',
 
+    'sms_service_unavailable_title' => 'Service not available',
+    'sms_service_unavailable_text' => '',
 
     'expired_otp_title' => 'Otp Expired',
     'expired_otp_text' => '',

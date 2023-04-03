@@ -116,21 +116,29 @@ class AuthLoginALController extends Controller
     public function sentMobileOtp(Request $request)
     {
         try {
-
-            //check valid mobile validation
+            //check syntax validation for mobile & country code
             $this->loginValidationService->checkMobileValidation($request);
-            $details = $this->authLoginALRepository->sentMobileOtp($request);
-            if ($details === true) {
-                Log::info('Login mobile otp');
-                $customUserMessageTitle = __('messages.otp_send_success_title');
-                $customUserMessageText = __('messages.otp_send_success_text');
-                $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+            if (config('alNotificationConfig.enable_notification') === true && config('alNotificationConfig.notification_type.sms')) {
+                $details = $this->authLoginALRepository->sentMobileOtp($request);
+                if ($details === true) {
+                    Log::info('Login mobile otp');
+                    $customUserMessageTitle = __('messages.otp_send_success_title');
+                    $customUserMessageText = __('messages.otp_send_success_text');
+                    $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                } else {
+                    $customUserMessageTitle = __('error_messages.invalid_mobile_title');
+                    $customUserMessageText = __('error_messages.invalid_mobile_text');
+                    $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                    throw new Exception($customUserMessageTitle, 401);
+                }
             } else {
-                $customUserMessageTitle = __('error_messages.invalid_mobile_title');
-                $customUserMessageText = __('error_messages.invalid_mobile_text');
+                $customUserMessageTitle = __('error_messages.sms_service_unavailable_title');
+                $customUserMessageText = __('error_messages.sms_service_unavailable_text');
                 $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
                 throw new Exception($customUserMessageTitle, 401);
             }
+
+
             return $this->apiResponse->getResponse(200);
         } catch (Exception $e) {
             $errorMessage = $e->getMessage();
@@ -168,19 +176,81 @@ class AuthLoginALController extends Controller
         }
     }
 
-    //verify otp
-    public function verifyOtp(Request $request)
+    //verify mail-otp
+    public function mailVerifyOtp(Request $request)
     {
         try {
+            //check valid email validation
+            $this->loginValidationService->checkEmailValidation($request->email);
+            Log::info('Verify mail otp');
+            //validate otp 
+            $validateOtpResponse = $this->authLoginALRepository->checkMailOtp($request->email, $request->otp);
+            if ($validateOtpResponse['status'] == 'validate') {
+                //get user details using username/email/mobile
+                $user = $this->authLoginALRepository->getUserByEmailOrUsername($request->email);
+                if (empty($user)) {
+                    $user = new AuthUser;
+                    $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
+                    if ($userDetails['status'] == 'success') {
+                        $user = $userDetails['data'];
+                        $customUserMessageTitle = __('messages.register_success_title');
+                        $customUserMessageText = __('messages.register_success_text');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                    } else {
+                        $customUserMessageTitle = __('error_messages.system_error');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle);
+                        throw new Exception($customUserMessageTitle, 500);
+                    }
+                }
+                // return $user;
+                $model_name = $user->getMorphClass();
+                $userSettingDetails = AuthSetting::where('model_name', $model_name)->where('model_id', $user->id)->latest()->first();
+                //check user if blocked
+                if (config('al_auth_config.is_check_user_block') === true) {
+                    if (!empty($userSettingDetails) && $userSettingDetails->user_status === 2) {
+                        $customUserMessageTitle = __('error_messages.account_blocked_title');
+                        $customUserMessageText = __('error_messages.account_blocked_text');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                        throw new Exception(__('error_messages.system_user_account_block'), 401);
+                    }
+                }
+                $ability =  $userSettingDetails->user_type ? 'userType:' . $userSettingDetails->user_type : 'userType:' .  config('al_auth_config.user_Type');
+                $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
+                $customUserMessageTitle = __('messages.otp_verify_success_title');
+                $customUserMessageText = __('messages.otp_verify_success_text');
+                $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                $data = [
+                    'accessToken' => $apiToken,
+                    'user' => $user
+                ];
+                return $this->apiResponse->getResponse(200, $data);
+            } else {
+                $customUserMessageTitle = $validateOtpResponse['customUserMessageTitle'];
+                $customUserMessageText = $validateOtpResponse['customUserMessageText'];
+                $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                throw new Exception($customUserMessageTitle, 401);
+            }
+        } catch (Exception $e) {
+            $errorMessage = $e->getMessage();
+            $errorLine = $e->getLine();
+            $errorFile = $e->getFile();
+            $errorResponseMessage = $errorMessage != null ? $errorMessage :  __('error_messages.system_error');
+            return $this->apiResponse->getResponse($e->getCode(), null,  $errorResponseMessage, $errorFile, $errorLine);
+        }
+    }
 
-            $username = $request->email ? $request->email : $request->mobile;
+    //verify sms-otp
+    public function smsVerifyOtp(Request $request)
+    {
+        try {
+            //check syntax validation for mobile & country code
+            $this->loginValidationService->checkMobileValidation($request);
             Log::info('Verify otp');
             //validate otp 
-            $validateOtpResponse = $this->authLoginALRepository->checkOtp($username, $request->otp);
+            $validateOtpResponse = $this->authLoginALRepository->checkSmsOtp($request->mobile, $request->country_code, $request->otp);
             if ($validateOtpResponse['status'] == 'validate') {
-                // $data = array();
                 //get user details using username/email/mobile
-                $user = $this->authLoginALRepository->getUserByEMU($username);
+                $user = $this->authLoginALRepository->getUserByMobile($request->mobile, $request->country_code);
                 if (empty($user)) {
                     $user = new AuthUser;
                     $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
@@ -295,8 +365,6 @@ class AuthLoginALController extends Controller
             $sso_type = $request->input('sso_type');
             $idToken = $request->input('idToken');
             $aud = $request->input('aud');
-            //validate email id
-            // $this->userService->checkEmailOrUsername($email);
             //validate user email with id token
             $tokenCheck = $this->tokenService->checkTokenValidation($idToken, $aud, $sso_type, $email);
 
@@ -306,7 +374,7 @@ class AuthLoginALController extends Controller
                 if (empty($user)) {
                     $request['status'] = 'verified';
                     $request['email_verified_at'] = Carbon::now();
-                    //user registration in temporary table 
+                    //update registration temporary table 
                     $tempUser = $this->authRegistrationALRepository->register($request);
                     $user = new AuthUser;
                     $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
@@ -333,7 +401,6 @@ class AuthLoginALController extends Controller
                 $errorMessage = !empty($tokenCheck['errorMessage']) ? $tokenCheck['errorMessage'] : __('error_messages.invalid_token_text');
                 $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
                 return $this->apiResponse->getResponse(401, null, $errorMessage);
-                // throw new Exception($customUserMessageTitle, 401);
             }
             return $this->apiResponse->getResponse(200, $data);
         } catch (Exception $e) {

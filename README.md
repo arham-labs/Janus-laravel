@@ -46,6 +46,12 @@ php artisan migrate
 
 ```
 
+Laravel provide default migration for sanctum name as create_personal_access_tokens_table.Simply edit or create new migration for alter personal_access_tokens table.Add following column name as "expires_at".
+
+
+    $table->timestamp('expires_at')->nullable();
+
+
 
 **Sanctum Token Ability Middleware Setup:**
 
@@ -166,7 +172,7 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 
 ```bash
-  POST /api/package/auth/verify-otp
+  POST /api/package/auth/mail-verify-otp
 ```
 
 | Parameter   | Type     | Description                |
@@ -190,8 +196,8 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 | Parameter   | Type     | Description                |
 | :--------   | :------- | :------------------------- |
-| `mobile`    | `number` | *Required*|
-| `country_code`    | `number` | *Required*|
+| `mobile`    | `string` | *Required*|
+| `country_code`    | `string` | *Required*|
 
 
 
@@ -205,14 +211,14 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 
 ```bash
-  POST /api/package/auth/verify-otp
+  POST /api/package/auth/sms-verify-otp
 ```
 
 | Parameter   | Type     | Description                |
 | :--------   | :------- | :------------------------- |
 | `otp`    | `number` | *Required*|
-| `mobile`    | `number` | *Required*|
-| `country_code`    | `number` | *Required*|
+| `mobile`    | `string` | *Required*|
+| `country_code`    | `string` | *Required*|
 
 
 

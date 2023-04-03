@@ -42,7 +42,6 @@ class AuthRegistrationALController extends Controller
     {
         try {
             $validate = $this->registrationValidationService->validation($request);
-            //    return $validate;
             if (!empty($validate)) {
                 $this->apiResponse->setCustomErrors($validate);
                 throw new Exception('Validation error', 422);
