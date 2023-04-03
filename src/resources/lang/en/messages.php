@@ -50,4 +50,6 @@ return [
     'mail_subject_forgot_password' => 'Forgot Password',
     'mail_success_reset_password' => 'Your password has been changed!',
 
+    //sms template key messages(:name and :otp are dynamic value)
+    'sms_otp_title' =>  "Hello :name your otp :otp"
 ];
