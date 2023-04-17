@@ -71,11 +71,43 @@ class AuthLoginALRepository implements AuthLoginALInterface
     //send otp via sms on mobile
     public function sentMobileOtp($request)
     {
-        $expireTime = config('al_config.otp_expire') ? config('al_config.otp_expire') : 5;
+        $expireTime = config('al_auth_config.otp_expire') ? config('al_auth_config.otp_expire') : 5;
+        $details = TempOtp::where('mobile', $request->mobile)
+            ->where('country_code', $request->country_code)
+            ->where('service', 'sms')
+            ->latest()->first();
+        if (!empty($details)) {
+
+            //check per day limit
+            $smsCountCurrent = TempOtp::where('mobile', $request->mobile)
+                ->where('country_code', $request->country_code)
+                ->where('service', 'sms')
+                ->where('service', 'sms')
+                ->whereDate('created_at', Carbon::today())
+                ->latest()->count();
+            $smsCountConfig = config('al_auth_config.sms.per_day_count') ? config('al_auth_config.sms.per_day_count') : 3;
+
+            if ($smsCountCurrent >= $smsCountConfig) {
+                return [
+                    'status' => 'error',
+                    "error" => 'day_limit_error',
+                ];
+            }
+
+            //check sms delay
+            $smsDelay = config('al_auth_config.sms.delay') ? config('al_auth_config.sms.delay') : 60;
+            $currentDate = Carbon::now();
+            if ($currentDate->diffInSeconds($details->updated_at) < $smsDelay) {
+                return [
+                    'status' => 'error',
+                    "error" => 'delay',
+                ];
+            }
+        }
+
 
         $tempOtp = $this->userService->generateOtp();
-        $createMobileOtp = TempOtp::updateOrCreate(
-            ['mobile' => $request->mobile],
+        $createMobileOtp = TempOtp::create(
             [
                 'uuid' => Str::uuid(),
                 'email' => null,
@@ -90,16 +122,22 @@ class AuthLoginALRepository implements AuthLoginALInterface
 
         if ($createMobileOtp) {
             $this->userService->sendSmsOtpService($createMobileOtp);
-            return true;
+            return [
+                'status' => 'success',
+                "error" => '',
+            ];
         } else {
-            return false;
+            return [
+                'status' => 'error',
+                "error" => 'invalid',
+            ];
         }
     }
 
     //send otp via mail on email
     public function sentEmailOtp($email)
     {
-        $expireTime = config('al_config.otp_expire') ? config('al_config.otp_expire') : 5;
+        $expireTime = config('al_auth_config.otp_expire') ? config('al_auth_config.otp_expire') : 5;
         $tempOtp = $this->userService->generateOtp();
         $createMobileOtp = TempOtp::updateOrCreate(
             ['email' => $email],
@@ -135,6 +173,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
                 $q
                     ->where('email', strtolower($email));
             })
+            ->latest()
             ->first();
         if (isset($details)) {
             $currentDate = Carbon::now();
@@ -174,6 +213,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
                     ->where('country_code', strtolower($country_code))
                     ->where('mobile', strtolower($mobile));
             })
+            ->latest()
             ->first();
         if (isset($details)) {
             $currentDate = Carbon::now();
@@ -335,7 +375,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
             $email_encryption_key = 'fp_' . config('al_auth_config.email_encryption_key');
             $explode = explode($email_encryption_key, $decrypt);
             if (!empty($explode[2]) && !empty($explode[3])) {
-                $tokensDetails = PasswordReset::where(['token' => $explode[3]])->first();
+                $tokensDetails = PasswordReset::where(['token' => $explode[3]])->latest()->first();
                 if (isset($tokensDetails)) {
                     $currentDate = Carbon::now();
                     $requestDate = $explode[2];
@@ -346,7 +386,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
                             $data['userDetails'] = $userDetails;
                         }
                     }
-                }
+                }   
             }
         }
         return $data;

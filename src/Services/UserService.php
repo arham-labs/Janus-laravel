@@ -49,7 +49,7 @@ class UserService
             'country_code' => $data->country_code ? $data->country_code : null,
             'mobile' => $data->mobile ? $data->mobile : null,
             'to' => $data->country_code . $data->mobile,
-            'body' => __('messages.sms_otp_title', ['name' => 'sid', 'otp' => $data->otp])
+            'body' => __('messages.sms_otp_title', ['otp' => $data->otp])
         ];
         dispatch(new SmsNotificationHandlerJob($details));
     }

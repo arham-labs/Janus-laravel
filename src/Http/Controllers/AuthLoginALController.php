@@ -120,16 +120,26 @@ class AuthLoginALController extends Controller
             $this->loginValidationService->checkMobileValidation($request);
             if (config('alNotificationConfig.enable_notification') === true && config('alNotificationConfig.notification_type.sms')) {
                 $details = $this->authLoginALRepository->sentMobileOtp($request);
-                if ($details === true) {
+                if ($details['status'] == 'success') {
                     Log::info('Login mobile otp');
                     $customUserMessageTitle = __('messages.otp_send_success_title');
                     $customUserMessageText = __('messages.otp_send_success_text');
                     $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                } else if ($details['status'] == 'error' && $details['error'] == 'delay') {
+                    $customUserMessageTitle = __('error_messages.delay_otp_mobile_title', ['delay' => config('al_auth_config.sms.delay') ? config('al_auth_config.sms.delay') : 60]);
+                    $customUserMessageText = __('error_messages.delay_otp_mobile_text', ['delay' => config('al_auth_config.sms.delay') ? config('al_auth_config.sms.delay') : 60]);
+                    $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                    throw new Exception($customUserMessageTitle, 422);
+                } else if ($details['status'] == 'error' && $details['error'] == 'day_limit_error') {
+                    $customUserMessageTitle = __('error_messages.day_limit_error_otp_mobile_title', ['day_limit_error' => config('al_auth_config.sms.day_limit_error') ? config('al_auth_config.sms.day_limit_error') : 60]);
+                    $customUserMessageText = __('error_messages.day_limit_error_otp_mobile_text', ['day_limit_error' => config('al_auth_config.sms.day_limit_error') ? config('al_auth_config.sms.day_limit_error') : 60]);
+                    $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                    throw new Exception($customUserMessageTitle, 422);
                 } else {
                     $customUserMessageTitle = __('error_messages.invalid_mobile_title');
                     $customUserMessageText = __('error_messages.invalid_mobile_text');
                     $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
-                    throw new Exception($customUserMessageTitle, 401);
+                    throw new Exception($customUserMessageTitle, 422);
                 }
             } else {
                 $customUserMessageTitle = __('error_messages.sms_service_unavailable_title');
@@ -137,7 +147,6 @@ class AuthLoginALController extends Controller
                 $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
                 throw new Exception($customUserMessageTitle, 401);
             }
-
 
             return $this->apiResponse->getResponse(200);
         } catch (Exception $e) {

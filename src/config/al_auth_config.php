@@ -8,6 +8,12 @@ return [
 
     //otp expire in minutes
     'otp_expire' => 5,
+    
+    //SMS OTP Configuration
+    'sms' => [
+        'delay' => 10, //in seconds
+        'per_day_count' => 5 //per day sms limit for user
+    ],
 
     //allow multi login with same credentials
     'user_multi_login' => true,

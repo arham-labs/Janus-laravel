@@ -40,6 +40,13 @@ return [
 
     'invalid_mobile_title' => 'Invalid mobile number',
     'invalid_mobile_text' => '',
+    
+    'delay_otp_mobile_title' => 'Please wait :delay seconds ',
+    'delay_otp_mobile_text' => '',
+
+    
+    'day_limit_error_otp_mobile_title' => 'You exceeded your daily limit',
+    'day_limit_error_otp_mobile_text' => '',
 
     'invalid_email_title' => 'Invalid email address',
     'invalid_email_text' => '',
