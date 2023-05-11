@@ -14,6 +14,8 @@ return [
     */
 
     'system_error' => 'Something went wrong,Please Try again',
+    
+    'bad_request' => 'Bad Request',
 
     'system_user_account_block' => 'Users account has been blocked',
 
@@ -44,9 +46,15 @@ return [
     'delay_otp_mobile_title' => 'Please wait :delay seconds ',
     'delay_otp_mobile_text' => '',
 
-    
     'day_limit_error_otp_mobile_title' => 'You exceeded your daily limit',
     'day_limit_error_otp_mobile_text' => '',
+
+    
+    'exist_mobile_title' => 'Mobile number already exist',
+    'exist_mobile_text' => '',
+
+    'missing_mobile_title' => 'Unregistered mobile number',
+    'missing_mobile_text' => '',
 
     'invalid_email_title' => 'Invalid email address',
     'invalid_email_text' => '',
