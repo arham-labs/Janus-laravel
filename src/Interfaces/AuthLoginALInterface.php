@@ -37,4 +37,8 @@ interface AuthLoginALInterface
 
     // User token validation for reset password
     public function webResetPasswordTokenValidate($request);
+
+    
+    //get temp User details using mobile from temporary users table
+    public function getTempUserByMobile($mobile, $country_code);
 }

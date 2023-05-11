@@ -11,6 +11,10 @@ composer require arhamlabs/authenticator
 
 ```
 
+
+## Required Packages
+While installing package you have enable sodium extension in PHP ini file.
+
 ## Configuration
 
 Get inside the **config/app.php** file then add socialite services in providers
@@ -126,6 +130,56 @@ To handle default exception on api routes such as AuthenticationException/Access
 ---
 
 
+### User Register with Mobile and OTP
+- Users can register using mobile and otp. OTP will be sent to the user via sms. 
+- Once otp send temp_otp table will be used for maintaining the verification details.
+- If mobile number already register then it will not allow to user register with same mobile number.
+
+
+
+```bash
+  POST /api/package/auth/mobile-register
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `first_name` | `string` ||
+| `last_name` | `string` ||
+| `user_type` | `string` ||
+| `username` | `string` ||
+| `email`    | `string` ||
+| `password` | `string` ||
+| `mobile`   | `number` |*Required*|  
+| `country_code` | `number` |*Required*|
+| `user_type` | `string` ||
+
+
+
+---
+
+
+### Mobile OTP Verification
+- This api is used to verify OTP. 
+- Once OTP gets verified a sanctum token will be generated.
+- If mobile number already register then it will not allow to user register with same mobile number.
+
+
+
+```bash
+  POST /api/package/auth/mobile-register-verify-otp
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `otp`    | `number` | *Required*|
+| `mobile`    | `string` | *Required*|
+| `country_code`    | `string` | *Required*|
+
+
+
+---
+
+
 # *User Login*
 
 ### User Login using Username and Password
@@ -165,7 +219,7 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 ---
 
-### OTP Verification
+### Mail OTP Verification
 - This api is used to verify OTP. 
 - Once OTP gets verified a token will be generated. Number of attempts will be added to the function.
 
@@ -184,9 +238,11 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 ---
 
-### User Login with Mobile and OTP
+### User Register/Login with Mobile and OTP with same end point
 - Users can login using sms and otp. OTP will be sent to the user via sms. 
 - Once otp send temp_otp table will be used for maintaining the verification details.
+- If mobile number already register then it will allow user to login
+- If mobile number is not register then it will allow user to register and then login.
 
 
 
@@ -204,9 +260,12 @@ To handle default exception on api routes such as AuthenticationException/Access
 ---
 
 
-### OTP Verification
+### Mobile OTP Verification
 - This api is used to verify OTP. 
 - Once OTP gets verified a token will be generated. Number of attempts will be added to the function.
+- In config file if allow_login_or_registration_through_mobile_number flag set to be true then following scenario will be applied. 
+- If mobile number already register then it will allow user to login
+- If mobile number is not register then it will allow user to register and then login.
 
 
 

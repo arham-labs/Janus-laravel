@@ -2,6 +2,16 @@
 return [
     //check email verification requirement
     'email_verification' => true,
+    
+    //check mobile verification requirement
+    'mobile_verification' => true,
+
+    /* If this flag is set true then user can login or register using the same endpoint based on the below scenario  
+        1. If the user is registered initially and the api is fired then he will be logged in.
+        2. If the user is not registered initially and the api is fired then he will be registered.
+    */
+
+    'allow_login_or_registration_through_mobile_number' => false,
 
     //length for otp 
     'otp_length' => 4,
@@ -11,7 +21,7 @@ return [
     
     //SMS OTP Configuration
     'sms' => [
-        'delay' => 10, //in seconds
+        'delay' => 60, //in seconds
         'per_day_count' => 5 //per day sms limit for user
     ],
 

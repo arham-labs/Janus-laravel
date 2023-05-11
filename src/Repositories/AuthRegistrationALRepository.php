@@ -6,7 +6,9 @@ use Arhamlabs\Authentication\Interfaces\AuthRegistrationALInterface;
 use Arhamlabs\Authentication\Models\TempRegistration;
 use Arhamlabs\Authentication\Services\UserService;
 use Arhamlabs\Authentication\Services\TokenService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AuthRegistrationALRepository implements AuthRegistrationALInterface
@@ -58,5 +60,14 @@ class AuthRegistrationALRepository implements AuthRegistrationALInterface
                 "data" => null
             ];
         }
+    }
+    //update temporary registration user status
+    public function verifyTemporaryRegistration($request)
+    {
+        Log::info('temp user details updated');
+        Log::info($request->uuid);
+        return  $userDetails = TempRegistration::where('uuid', $request->uuid)->update([
+            'status' => 'verified'
+        ]);
     }
 }

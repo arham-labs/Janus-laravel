@@ -10,6 +10,13 @@ Route::middleware('guest')->group(function () {
     //User registration using email,password
     Route::post('api/package/auth/register', [AuthRegistrationALController::class, 'registerUser']);
 
+    
+    //User registration using mobile,country code
+    Route::post('api/package/auth/mobile-register', [AuthRegistrationALController::class, 'registerMobileUser']);
+    
+    //Registration verify mobile,otp
+    Route::post('api/package/auth/mobile-register-verify-otp', [AuthRegistrationALController::class, 'registrationMobileVerifyOtp']);
+
     //User login using email,password
     Route::post('api/package/auth/login', [AuthLoginALController::class, 'login']);
 

@@ -9,9 +9,13 @@ return [
 
         'registration_username' => '',
 
-        "registration_email" => "required|email|unique:users,email",
+        "registration_email" => "email|unique:users,email",
 
-        "registration_password" => 'required|min:6|max:15',
+        "registration_mobile" => "unique:users,mobile|regex:/^[0-9]{6,14}$/",
+
+        "registration_country_code" =>  "required",
+
+        "registration_password" => '',
 
         "check_email" =>  "required|email",
 
@@ -41,6 +45,14 @@ return [
         'registration_email_unique' => 'Email already exist',
 
         'registration_email_invalid' => 'Email format is invalid',
+
+        'registration_mobile_required' => 'Mobile is required',
+
+        'registration_mobile_unique' => 'Mobile already exist',
+
+        'registration_mobile_invalid' => 'Mobile format is invalid',
+
+        'registration_country_code_invalid' => 'Country code is required',
 
         'registration_password_required' => 'Password required',
 

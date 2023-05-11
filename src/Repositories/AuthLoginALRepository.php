@@ -75,7 +75,8 @@ class AuthLoginALRepository implements AuthLoginALInterface
         $details = TempOtp::where('mobile', $request->mobile)
             ->where('country_code', $request->country_code)
             ->where('service', 'sms')
-            ->latest()->first();
+            ->latest()
+            ->first();
         if (!empty($details)) {
 
             //check per day limit
@@ -243,6 +244,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
         return AuthUser::with('settings')
             ->where('email', strtolower($email))
             ->orWhere('username', strtolower($email))
+            ->latest()
             ->first();
     }
 
@@ -253,6 +255,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
         return AuthUser::with('settings')
             ->where('mobile', $mobile)
             ->where('country_code', $country_code)
+            ->latest()
             ->first();
     }
 
@@ -263,6 +266,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
             ->where('email', strtolower($username))
             ->orWhere('username', strtolower($username))
             ->orWhere('mobile', strtolower($username))
+            ->latest()
             ->first();
     }
 
@@ -386,9 +390,18 @@ class AuthLoginALRepository implements AuthLoginALInterface
                             $data['userDetails'] = $userDetails;
                         }
                     }
-                }   
+                }
             }
         }
         return $data;
+    }
+
+    //get user details using username/email
+    public function getTempUserByMobile($mobile, $country_code)
+    {
+        return TempRegistration::where('mobile', $mobile)
+            ->where('country_code', $country_code)
+            ->latest()
+            ->first();
     }
 }

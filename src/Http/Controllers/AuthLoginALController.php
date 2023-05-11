@@ -118,6 +118,24 @@ class AuthLoginALController extends Controller
         try {
             //check syntax validation for mobile & country code
             $this->loginValidationService->checkMobileValidation($request);
+            //get user details using username/email/mobile
+            $user = $this->authLoginALRepository->getUserByMobile($request->mobile, $request->country_code);
+            if (empty($user)) {
+                if (config('al_auth_config.allow_login_or_registration_through_mobile_number') === true) {
+                    //user registration in temporary table 
+                    $tempDetails = $this->authRegistrationALRepository->register($request);
+                    if ($tempDetails['status'] !== 'success') {
+                        $customUserMessageTitle = __('error_messages.system_error');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle);
+                        throw new Exception($customUserMessageTitle, 500);
+                    }
+                } else {
+                    $customUserMessageTitle = __('error_messages.missing_mobile_title');
+                    $customUserMessageText = __('error_messages.missing_mobile_text');
+                    $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                    throw new Exception($customUserMessageTitle, 401);
+                }
+            }
             if (config('alNotificationConfig.enable_notification') === true && config('alNotificationConfig.notification_type.sms')) {
                 $details = $this->authLoginALRepository->sentMobileOtp($request);
                 if ($details['status'] == 'success') {
@@ -145,7 +163,7 @@ class AuthLoginALController extends Controller
                 $customUserMessageTitle = __('error_messages.sms_service_unavailable_title');
                 $customUserMessageText = __('error_messages.sms_service_unavailable_text');
                 $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
-                throw new Exception($customUserMessageTitle, 401);
+                throw new Exception('SMS service disabled.You can enabled it from config.', 401);
             }
 
             return $this->apiResponse->getResponse(200);
@@ -198,6 +216,7 @@ class AuthLoginALController extends Controller
                 //get user details using username/email/mobile
                 $user = $this->authLoginALRepository->getUserByEmailOrUsername($request->email);
                 if (empty($user)) {
+
                     $user = new AuthUser;
                     $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
                     if ($userDetails['status'] == 'success') {
@@ -261,20 +280,34 @@ class AuthLoginALController extends Controller
                 //get user details using username/email/mobile
                 $user = $this->authLoginALRepository->getUserByMobile($request->mobile, $request->country_code);
                 if (empty($user)) {
-                    $user = new AuthUser;
-                    $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
-                    if ($userDetails['status'] == 'success') {
-                        $user = $userDetails['data'];
-                        $customUserMessageTitle = __('messages.register_success_title');
-                        $customUserMessageText = __('messages.register_success_text');
-                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                    if (config('al_auth_config.allow_login_or_registration_through_mobile_number') === true) {
+                        $tempUser = $this->authLoginALRepository->getTempUserByMobile($request->mobile, $request->country_code);
+                        if (empty($tempUser)) {
+                            $customUserMessageTitle = __('error_messages.bad_request');
+                            $this->apiResponse->setCustomResponse($customUserMessageTitle);
+                            throw new Exception($customUserMessageTitle, 400);
+                        }
+                        $user = new AuthUser;
+                        $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
+                        if ($userDetails['status'] == 'success') {
+                            //update user registration in temporary table to verify
+                            $tempDetails = $this->authRegistrationALRepository->verifyTemporaryRegistration($tempUser);
+                            $user = $userDetails['data'];
+                            $customUserMessageTitle = __('messages.register_success_title');
+                            $customUserMessageText = __('messages.register_success_text');
+                            $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                        } else {
+                            $customUserMessageTitle = __('error_messages.system_error');
+                            $this->apiResponse->setCustomResponse($customUserMessageTitle);
+                            throw new Exception($customUserMessageTitle, 500);
+                        }
                     } else {
-                        $customUserMessageTitle = __('error_messages.system_error');
-                        $this->apiResponse->setCustomResponse($customUserMessageTitle);
-                        throw new Exception($customUserMessageTitle, 500);
+                        $customUserMessageTitle = __('error_messages.missing_mobile_title');
+                        $customUserMessageText = __('error_messages.missing_mobile_text');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                        throw new Exception($customUserMessageTitle, 401);
                     }
                 }
-                // return $user;
                 $model_name = $user->getMorphClass();
                 $userSettingDetails = AuthSetting::where('model_name', $model_name)->where('model_id', $user->id)->latest()->first();
                 //check user if blocked
