@@ -412,6 +412,11 @@ class AuthLoginALController extends Controller
 
             $data = array();
             if ($tokenCheck['status'] === true) {
+                if ($sso_type == 'linkedin-web') {
+                    $email = $tokenCheck['email'];
+                    $request['first_name'] = $tokenCheck['first_name'];
+                    $request['last_name'] = $tokenCheck['last_name'];
+                }
                 $user = $this->authLoginALRepository->getUserByEmailOrUsername($email);
                 if (empty($user)) {
                     $request['status'] = 'verified';
@@ -428,7 +433,18 @@ class AuthLoginALController extends Controller
                     }
                     $user = $userDetails['data'];
                 }
-                $ability = 'userType:' . config('al_auth_config.user_Type');
+                $model_name = $user->getMorphClass();
+                $userSettingDetails = AuthSetting::where('model_name', $model_name)->where('model_id', $user->id)->latest()->first();
+                //check user if blocked
+                if (config('al_auth_config.is_check_user_block') === true) {
+                    if (!empty($userSettingDetails) && $userSettingDetails->user_status === 2) {
+                        $customUserMessageTitle = __('error_messages.account_blocked_title');
+                        $customUserMessageText = __('error_messages.account_blocked_text');
+                        $this->apiResponse->setCustomResponse($customUserMessageTitle, $customUserMessageText);
+                        throw new Exception(__('error_messages.system_user_account_block'), 401);
+                    }
+                }
+                $ability =  $userSettingDetails->user_type ? 'userType:' . $userSettingDetails->user_type : 'userType:' .  config('al_auth_config.user_Type');
                 $apiToken = $this->tokenService->generateSanctumToken($user, $ability);
                 $customUserMessageTitle = __('messages.login_success_title');
                 $customUserMessageText = __('messages.login_success_text');

@@ -47,7 +47,8 @@ return [
     'linkedin' => [
         'LINKEDIN_REDIRECT_URI' => env('LINKEDIN_REDIRECT_URI'),
         'LINKEDIN_CLIENT_ID' => env('LINKEDIN_CLIENT_ID'),
-        'LINKEDIN_CLIENT_SECRET' => env('LINKEDIN_CLIENT_SECRET')
+        'LINKEDIN_CLIENT_SECRET' => env('LINKEDIN_CLIENT_SECRET'),
+        'CURLOPT_SSL_VERIFYPEER' => env('CURLOPT_SSL_VERIFYPEER')
     ],
 
     //social media login apple config setup

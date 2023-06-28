@@ -4,6 +4,7 @@ namespace Arhamlabs\Authentication\Services;
 
 use Google_Client;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 
 class TokenService
@@ -28,7 +29,7 @@ class TokenService
             }
         }
 
-        if ($sso_type == 'linkedin') {
+        if ($sso_type == 'linkedin-mobile') {
             $valid["status"] = false;
             $client_id = config('al_auth_config.linkedin.LINKEDIN_CLIENT_ID');
             $client_secret = config('al_auth_config.linkedin.LINKEDIN_CLIENT_SECRET');
@@ -46,6 +47,149 @@ class TokenService
             if (isset($result) && $result->active === true) {
                 $valid["status"] = true;
                 $valid["message"] = "Token validate successfully";
+            }
+        }
+        
+        if ($sso_type == 'linkedin-web') {
+            $valid["status"] = false;
+            $client_id = config('al_auth_config.linkedin.LINKEDIN_CLIENT_ID');
+            $client_secret = config('al_auth_config.linkedin.LINKEDIN_CLIENT_SECRET');
+            $redirect_uri = config('al_auth_config.linkedin.LINKEDIN_REDIRECT_URI');
+            $CURLOPT_SSL_VERIFYPEER = config('al_auth_config.linkedin.CURLOPT_SSL_VERIFYPEER');
+
+            // return "grant_type:authorization_code&code=$idToken,redirect_uri=$redirect_uri&client_id=$client_id&client_secret=$client_secret";
+            $ch = curl_init('https://www.linkedin.com/oauth/v2/accessToken');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=authorization_code&code=$idToken&redirect_uri=$redirect_uri&client_id=$client_id&client_secret=$client_secret");
+
+
+            // Disable SSL verification
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $CURLOPT_SSL_VERIFYPEER);
+            // execute!
+            $response = curl_exec($ch);
+            // close the connection, release resources used
+            curl_close($ch);
+            // $response contains
+
+            if ($response === false) {
+                $error = curl_error($ch);
+                // Handle the error
+                $valid["status"] = false;
+                $valid["message"] = __('error_messages.invalid_token_title');
+                $valid["errorMessage"] = $error;
+                Log::error("Linkedin web error:");
+                Log::error($error);
+            } else {
+                $result = json_decode($response, true);
+                if ($result === null) {
+                    // Failed to decode JSON response
+                    $valid["status"] = false;
+                    $valid["message"] = __('error_messages.invalid_token_title');
+                    $valid["errorMessage"] = 'Failed to decode JSON response';
+                    Log::error("Linkedin web error:");
+                    Log::error('Failed to decode JSON response');
+                } else {
+
+                    if (!empty($result) && !empty($result['access_token'])) {
+                        // Set the API endpoint URL for retrieving user profile details
+                        $profileUrl = 'https://api.linkedin.com/v2/me?projection=(id,firstName,lastName)';
+
+                        // Set the API endpoint URL for retrieving email address
+                        $emailUrl = 'https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))';
+
+                        // Set the headers including the access token
+                        $headers = [
+                            'Authorization: Bearer ' . $result['access_token'],
+                            'Connection: Keep-Alive',
+                            'Accept: application/json',
+                        ];
+
+                        // Initialize cURL for retrieving user profile details
+                        $ch = curl_init($profileUrl);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                        // Disable SSL verification
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $CURLOPT_SSL_VERIFYPEER);
+
+                        // Execute the request to retrieve user profile details
+                        $profileResponse = curl_exec($ch);
+                        if ($profileResponse === false) {
+                            $error = curl_error($ch);
+                            $errorCode = curl_errno($ch);
+                            // Handle the error
+                            $valid["status"] = false;
+                            $valid["message"] = __('error_messages.invalid_token_title');
+                            $valid["errorMessage"] = $error;
+                            Log::error("Linkedin web error:");
+                            Log::error($error);
+                        } else {
+                            // Decode the response JSON for user profile details
+                            $profileResult = json_decode($profileResponse, true);
+                            if ($profileResult === null) {
+                                // Failed to decode JSON response
+                                $valid["status"] = false;
+                                $valid["message"] = __('error_messages.invalid_token_title');
+                                $valid["errorMessage"] = 'Failed to decode profile response JSON response';
+                                Log::error("Linkedin web error:");
+                                Log::error('Failed to decode email response JSON response');
+                            } else {
+                                // Initialize cURL for retrieving email address
+                                $ch = curl_init($emailUrl);
+                                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                // Disable SSL verification
+                                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $CURLOPT_SSL_VERIFYPEER);
+
+                                // Execute the request to retrieve email address
+                                $emailResponse = curl_exec($ch);
+
+                                if ($emailResponse === false) {
+                                    $error = curl_error($ch);
+                                    $errorCode = curl_errno($ch);
+                                    // Handle the error
+                                    $valid["status"] = false;
+                                    $valid["message"] = __('error_messages.invalid_token_title');
+                                    $valid["errorMessage"] = $error;
+                                    Log::error("Linkedin web error:");
+                                    Log::error($error);
+                                } else {
+                                    // Decode the response JSON for email address
+                                    $emailResult = json_decode($emailResponse, true);
+                                    if ($emailResult === null) {
+                                        // Failed to decode JSON response
+                                        $valid["status"] = false;
+                                        $valid["message"] = __('error_messages.invalid_token_title');
+                                        $valid["errorMessage"] = 'Failed to decode email response JSON response';
+                                        Log::error("Linkedin web error:");
+                                        Log::error('Failed to decode email response JSON response');
+                                    } else {
+                                        if (!empty($profileResult['firstName']['localized']['en_US']) && !empty($profileResult['lastName']['localized']['en_US']) && !empty($emailResult['elements'][0]['handle~']['emailAddress'])) {
+                                            $valid["status"] = true;
+                                            // Retrieve the user details from the profileResult array
+                                            $valid["first_name"] = $profileResult['firstName']['localized']['en_US'];
+                                            $valid["last_name"] = $profileResult['lastName']['localized']['en_US'];
+                                            // Retrieve the email address from the emailResult array
+                                            $valid["email"] = $emailResult['elements'][0]['handle~']['emailAddress'];                                            
+                                            Log::info('SSO linkedin web login success');
+                                        } else {
+                                            $valid["status"] = false;
+                                            $valid["message"] = __('error_messages.invalid_token_title');
+                                            $valid["errorMessage"] = 'Failed to get personal deatils';
+                                            Log::error("Linkedin web error:");
+                                            Log::error($profileResult);
+                                            Log::error($emailResult);
+                                            Log::error('Failed to get personal deatils');
+                                        }
+                                    }
+                                }
+                            }
+                            // Close the cURL connection
+                            curl_close($ch);
+                        }
+                    }
+                }
             }
         }
 

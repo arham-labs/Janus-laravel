@@ -337,7 +337,7 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 
 ### Google
-- Users can login via google account using id token.For google account validation package will validate id token and aud  using [Google Client](https://packagist.org/packages/google/apiclient) package.
+- Users can login via google account using id token.For google account validation package will validate id token and aud(client id)  using [Google Client](https://packagist.org/packages/google/apiclient) package.
 
 
 
@@ -357,9 +357,28 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 
 
-### Linkdin
-- Users can login via linkdin account using id token.For linkdin account validation package will validate id token.
+### Linkedin- For Mobile
+- Users can login via linkedin account using id token.Package will validate id token.
+- *sso_type must* be 'linkedin-mobile'
 
+
+```bash
+  POST /api/package/auth/sso-login
+
+```
+
+| Parameter   | Type     | Description                |
+| :--------   | :------- | :------------------------- |
+| `email`    | `string` | *Required*|
+| `idToken`    | `string` | *Required*|
+| `sso_type`    | `string` | *Required*|
+
+
+### Linkedin- For Web
+- Users can login via linkedin account using authorization code.Package will validate authorization code and will fetch access token from linked in server.
+- Package will update user details by fetching details from linkedin server.
+- *sso_type must* be 'linkedin-web'
+- *idToken* must be authorization code.
 
 
 ```bash
@@ -375,8 +394,9 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 
 
+
 ### Apple 
-- Users can login via apple account using id token.For linkdin account validation package will validate id token.
+- Users can login via apple account using id token.For linkedin account validation package will validate id token.
 
 
 
@@ -404,14 +424,31 @@ To handle default exception on api routes such as AuthenticationException/Access
 
 ```bash
 
+    
     //check email verification requirement
     'email_verification' => true,
+    
+    //check mobile verification requirement
+    'mobile_verification' => true,
+
+    /* If this flag is set true then user can login or register using the same endpoint based on the below scenario  
+        1. If the user is registered initially and the api is fired then he will be logged in.
+        2. If the user is not registered initially and the api is fired then he will be registered.
+    */
+
+    'allow_login_or_registration_through_mobile_number' => false,
 
     //length for otp 
     'otp_length' => 4,
 
     //otp expire in minutes
     'otp_expire' => 5,
+    
+    //SMS OTP Configuration
+    'sms' => [
+        'delay' => 60, //in seconds
+        'per_day_count' => 5 //per day sms limit for user
+    ],
 
     //allow multi login with same credentials
     'user_multi_login' => true,
@@ -419,28 +456,32 @@ To handle default exception on api routes such as AuthenticationException/Access
     //default user type
     'user_Type' => 'app_user',
 
-     //if true then it will check user block status
-     'is_check_user_block' => true,
+    //if true then it will check user block status
+    'is_check_user_block' => true,
 
-     //email verification mail expiry in hours
-     'email_verification_mail_expiry' => 48,
- 
-     //forgot password mail expiry in hours
-     'forgot_password_mail_expiry' => 48,
- 
-     //email link encryption key
-     'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH'),
+    //email verification mail expiry in hours
+    'email_verification_mail_expiry' => 48,
 
+    //forgot password mail expiry in hours
+    'forgot_password_mail_expiry' => 48,
+
+    //email link encryption key
+    'email_encryption_key' => env('EMAIL_ENCRYPTION_KEY', 'ALAUTH'),
+
+    //social media login linkedin config setup
     'linkedin' => [
         'LINKEDIN_REDIRECT_URI' => env('LINKEDIN_REDIRECT_URI'),
         'LINKEDIN_CLIENT_ID' => env('LINKEDIN_CLIENT_ID'),
-        'LINKEDIN_CLIENT_SECRET' => env('LINKEDIN_CLIENT_SECRET')
+        'LINKEDIN_CLIENT_SECRET' => env('LINKEDIN_CLIENT_SECRET'),
+        'CURLOPT_SSL_VERIFYPEER' => env('CURLOPT_SSL_VERIFYPEER')
     ],
 
+    //social media login apple config setup
     'apple' => [
         'TOKEN_ISS' => env('TOKEN_ISS', "https://appleid.apple.com"),
-        'TOKEN_AUD' => env('TOKEN_AUD', "com.example.co.uk.app"),
+        'TOKEN_AUD' => env('TOKEN_AUD', "com.example.co.app"),
     ]
+
 
 
 ```
