@@ -83,13 +83,13 @@ class TokenService
                 Log::error($error);
             } else {
                 $result = json_decode($response, true);
-                if ($result === null) {
+                if ($result === null || !empty($result['error_description'])) {
                     // Failed to decode JSON response
                     $valid["status"] = false;
                     $valid["message"] = __('error_messages.invalid_token_title');
-                    $valid["errorMessage"] = 'Failed to decode JSON response';
+                    $valid["errorMessage"] = $result['error_description'] ?? 'Failed to decode JSON response';
                     Log::error("Linkedin web error:");
-                    Log::error('Failed to decode JSON response');
+                    Log::error($valid["errorMessage"] );
                 } else {
 
                     if (!empty($result) && !empty($result['access_token'])) {
