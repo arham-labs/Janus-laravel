@@ -414,6 +414,7 @@ class AuthLoginALController extends Controller
             if ($tokenCheck['status'] === true) {
                 if ($sso_type == 'linkedin-web') {
                     $email = $tokenCheck['email'];
+                    $request['email'] = $tokenCheck['email'];
                     $request['first_name'] = $tokenCheck['first_name'];
                     $request['last_name'] = $tokenCheck['last_name'];
                 }
