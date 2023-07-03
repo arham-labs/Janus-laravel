@@ -6,7 +6,7 @@ use Arhamlabs\ApiResponse\ApiResponse;
 use Arhamlabs\Authentication\Interfaces\AuthLoginALInterface;
 use Arhamlabs\Authentication\Interfaces\AuthRegistrationALInterface;
 use Arhamlabs\Authentication\Models\AuthSetting;
-use Arhamlabs\Authentication\Models\AuthUser;
+use App\Models\User;
 use Arhamlabs\Authentication\Services\RegistrationValidationService;
 use Arhamlabs\Authentication\Services\TokenService;
 use Arhamlabs\Authentication\Services\UserService;
@@ -65,7 +65,7 @@ class AuthRegistrationALController extends Controller
                     CreateMainTableEntry(request data,model object)
 
                     */
-                    $user = new AuthUser;
+                    $user = new User;
                     $createMainTableEntry = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
                     if ($createMainTableEntry['status'] == 'success') {
                         $customUserMessageTitle = __('messages.register_success_title');
@@ -147,7 +147,7 @@ class AuthRegistrationALController extends Controller
                     CreateMainTableEntry(request data,model object)
 
                     */
-                    $user = new AuthUser;
+                    $user = new User;
                     $createMainTableEntry = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
                     if ($createMainTableEntry['status'] == 'success') {
                         //update user registration in temporary table to verify
@@ -201,7 +201,7 @@ class AuthRegistrationALController extends Controller
                     $this->apiResponse->setCustomResponse($customUserMessageTitle);
                     throw new Exception($customUserMessageTitle, 400);
                 }
-                $user = new AuthUser;
+                $user = new User;
                 $userDetails = $this->authLoginALRepository->CreateMainTableEntry($tempUser, $user);
                 if ($userDetails['status'] === 'success') {
                     Log::info('user details added to user table');

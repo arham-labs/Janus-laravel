@@ -100,6 +100,33 @@ To handle default exception on api routes such as AuthenticationException/Access
 ```
 
 
+**Update default App\Models\User.php:**
+
+```bash
+
+    use Arhamlabs\Authentication\Models\AuthSetting;
+
+    protected $fillable = [
+            'uuid',
+            'name',
+            'sso_type',
+            'first_name',
+            'last_name',
+            'username',
+            'email',
+            'mobile',
+            'country_code',
+            'password',
+            'email_verified_at',
+        ];
+
+    public function settings()
+    {
+        return $this->hasOne(AuthSetting::class, 'model_id', 'id')->where('model_name', 'App\Models\User');
+    }
+
+```
+
 ## API Reference 
 
 ## *Registration*

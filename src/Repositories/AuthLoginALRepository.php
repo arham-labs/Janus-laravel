@@ -6,7 +6,6 @@ use Arhamlabs\Authentication\Models\TempOtp;
 use App\Models\User;
 use Arhamlabs\Authentication\Interfaces\AuthLoginALInterface;
 use Arhamlabs\Authentication\Models\AuthSetting;
-use Arhamlabs\Authentication\Models\AuthUser;
 use Arhamlabs\Authentication\Models\TempRegistration;
 use Arhamlabs\Authentication\Services\UserService;
 use Arhamlabs\Authentication\Services\TokenService;
@@ -241,7 +240,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
     //get user details using username/email
     public function getUserByEmailOrUsername($email)
     {
-        return AuthUser::with('settings')
+        return User::with('settings')
             ->where('email', strtolower($email))
             ->orWhere('username', strtolower($email))
             ->latest()
@@ -252,7 +251,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
     //get user details using username/email
     public function getUserByMobile($mobile, $country_code)
     {
-        return AuthUser::with('settings')
+        return User::with('settings')
             ->where('mobile', $mobile)
             ->where('country_code', $country_code)
             ->latest()
@@ -262,7 +261,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
     //get user details using username/email/mobile
     public function getUserByEMU($username)
     {
-        return AuthUser::with('settings')
+        return User::with('settings')
             ->where('email', strtolower($username))
             ->orWhere('username', strtolower($username))
             ->orWhere('mobile', strtolower($username))
@@ -338,15 +337,15 @@ class AuthLoginALRepository implements AuthLoginALInterface
                 $tempUserDetails = TempRegistration::where('email', $explode[1])->where('uuid', $explode[0])->latest()->first();
                 if (!empty($tempUserDetails)) {
                     $tempUserDetails['email_verified_at'] = Carbon::now();
-                    $user = new AuthUser;
-                    $currentUserDetails = AuthUser::where('email', $tempUserDetails)->latest()->first();
+                    $user = new User;
+                    $currentUserDetails = User::where('email', $tempUserDetails)->latest()->first();
 
                     $userDetails = TempRegistration::where('uuid', $tempUserDetails->uuid)->update([
                         'email_verified_at' => Carbon::now(),
                         'status' => 'verified'
                     ]);
                     if (!empty($currentUserDetails)) {
-                        $updateMainTable = AuthUser::where('uuid', $currentUserDetails->uuid)->update([
+                        $updateMainTable = User::where('uuid', $currentUserDetails->uuid)->update([
                             'email_verified_at' => Carbon::now()
                         ]);
                         $model_name = $currentUserDetails->getMorphClass();
@@ -384,7 +383,7 @@ class AuthLoginALRepository implements AuthLoginALInterface
                     $currentDate = Carbon::now();
                     $requestDate = $explode[2];
                     if ($currentDate->diffInHours($requestDate) <= config('al_auth_config.forgot_password_mail_expiry')) {
-                        $userDetails = AuthUser::select('email')->where('email', $explode[1])->where('uuid', $explode[0])->latest()->first();
+                        $userDetails = User::select('email')->where('email', $explode[1])->where('uuid', $explode[0])->latest()->first();
                         if (!empty($userDetails)) {
                             $data['isTokenValidate'] = true;
                             $data['userDetails'] = $userDetails;

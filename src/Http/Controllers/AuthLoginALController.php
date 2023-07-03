@@ -6,7 +6,7 @@ use Arhamlabs\ApiResponse\ApiResponse;
 use Arhamlabs\Authentication\Interfaces\AuthLoginALInterface;
 use Arhamlabs\Authentication\Interfaces\AuthRegistrationALInterface;
 use Arhamlabs\Authentication\Models\AuthSetting;
-use Arhamlabs\Authentication\Models\AuthUser;
+use App\Models\User;
 use Arhamlabs\Authentication\Services\LoginValidationService;
 use Arhamlabs\Authentication\Services\TokenService;
 use Arhamlabs\Authentication\Services\UserService;
@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Arhamlabs\Authentication\Models\PasswordReset;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
 
 class AuthLoginALController extends Controller
 {
@@ -217,7 +216,7 @@ class AuthLoginALController extends Controller
                 $user = $this->authLoginALRepository->getUserByEmailOrUsername($request->email);
                 if (empty($user)) {
 
-                    $user = new AuthUser;
+                    $user = new User;
                     $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
                     if ($userDetails['status'] == 'success') {
                         $user = $userDetails['data'];
@@ -287,7 +286,7 @@ class AuthLoginALController extends Controller
                             $this->apiResponse->setCustomResponse($customUserMessageTitle);
                             throw new Exception($customUserMessageTitle, 400);
                         }
-                        $user = new AuthUser;
+                        $user = new User;
                         $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
                         if ($userDetails['status'] == 'success') {
                             //update user registration in temporary table to verify
@@ -424,7 +423,7 @@ class AuthLoginALController extends Controller
                     $request['email_verified_at'] = Carbon::now();
                     //update registration temporary table 
                     $tempUser = $this->authRegistrationALRepository->register($request);
-                    $user = new AuthUser;
+                    $user = new User;
                     $userDetails = $this->authLoginALRepository->CreateMainTableEntry($request, $user);
                     if (!$userDetails['status'] == 'success') {
                         $customUserMessageTitle = __('error_messages.system_error');
@@ -528,7 +527,7 @@ class AuthLoginALController extends Controller
                     return Redirect::back()->withInput()->withErrors($validate);
                 }
 
-                $userPasswordUpdate = AuthUser::where('email', $data['userDetails']->email)->update([
+                $userPasswordUpdate = User::where('email', $data['userDetails']->email)->update([
                     'password' => Hash::make($request->password)
                 ]);
                 if ($userPasswordUpdate) {
@@ -570,7 +569,7 @@ class AuthLoginALController extends Controller
                     $customUserMessageText = __('messages.change_password_text');
                 }
             }
-            $userUpdate = AuthUser::where('id', $user->id)->update([
+            $userUpdate = User::where('id', $user->id)->update([
                 'password' => Hash::make($request->password)
             ]);
             if (isset($userUpdate)) {
