@@ -532,7 +532,7 @@ class AuthLoginALController extends Controller
                 ]);
                 if ($userPasswordUpdate) {
                     $deleteEntry =  PasswordReset::where(['email' =>  $data['userDetails']->email])->delete();
-                    return Redirect::back()->withInput()->with(['statusSuccess' => __('messages.mail_success_email_verification')]);
+                    return Redirect::back()->withInput()->with(['statusSuccess' => __('messages.mail_success_reset_password')]);
                 } else
                     return back()->withInput()->with(['error' => 'Something went wrong!Please try again']);
             }

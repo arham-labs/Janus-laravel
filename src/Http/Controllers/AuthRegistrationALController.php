@@ -183,7 +183,6 @@ class AuthRegistrationALController extends Controller
             Log::info('Verify otp');
             //validate otp 
             $validateOtpResponse = $this->authLoginALRepository->checkSmsOtp($request->mobile, $request->country_code, $request->otp);
-            // dd($validateOtpResponse);
             if ($validateOtpResponse['status'] == 'validate') {
                 //get user details using username/email/mobile
                 $user = $this->authLoginALRepository->getUserByMobile($request->mobile, $request->country_code);
